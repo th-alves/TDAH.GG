@@ -29,14 +29,31 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-// Fetch com retry automático em 429 (rate limit)
+// Fetch com retry automático em 429 (rate limit) e timeout de 8s por request
 async function riotFetch(url, apiKey, retries = 2) {
-  const res = await fetch(url, {
-    headers: { 'X-Riot-Token': apiKey },
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000); // 8s por request
+
+  let res;
+  try {
+    res = await fetch(url, {
+      headers: { 'X-Riot-Token': apiKey },
+      signal: controller.signal,
+    });
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      const e = new Error(`Riot API timeout: ${url}`);
+      e.status = 504;
+      throw e;
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (res.status === 429 && retries > 0) {
-    const retryAfter = parseInt(res.headers.get('Retry-After') || '1', 10);
+    // Limita o Retry-After a no máximo 5s para não estourar o timeout do Vercel
+    const retryAfter = Math.min(parseInt(res.headers.get('Retry-After') || '1', 10), 5);
     await new Promise(r => setTimeout(r, retryAfter * 1000));
     return riotFetch(url, apiKey, retries - 1);
   }

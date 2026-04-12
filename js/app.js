@@ -132,20 +132,46 @@
   }
 
   // ---- Busca ----
+  // Timeout por quantidade de partidas
+  const FETCH_TIMEOUT_MS = { 20: 25000, 40: 35000, 60: 45000, 100: 55000 };
+
   async function fetchMatches(gameName, tagLine, platform, count) {
     // NÃO enviamos patchStart para o servidor — a Riot API ignora count quando
     // startTime está presente e retorna apenas ~20 jogos do patch, quebrando
     // o contador de partidas e as vitórias históricas.
     // O filtro de patch é feito 100% no client via getActiveChampions().
     const params = new URLSearchParams({ gameName, tagLine, platform, count });
-    const res = await fetch(`/api/matches?${params}`);
+
+    // AbortController com timeout — evita loading infinito quando o servidor
+    // trava, Vercel retorna 504 em HTML, ou a rede some.
+    const timeoutMs = FETCH_TIMEOUT_MS[String(count)] ?? 55000;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    let res;
+    try {
+      res = await fetch(`/api/matches?${params}`, { signal: controller.signal });
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        throw new Error(
+          `A busca demorou mais de ${Math.round(timeoutMs / 1000)}s. ` +
+          `Tente reduzir a quantidade de partidas ou aguarde e tente novamente.`
+        );
+      }
+      throw new Error('Falha de rede. Verifique sua conexão e tente novamente.');
+    } finally {
+      clearTimeout(timer);
+    }
 
     let data;
     try {
       data = await res.json();
     } catch {
-      // Vercel retornou HTML de erro (timeout ou crash) em vez de JSON
-      throw new Error(`Erro no servidor (${res.status}). Tente reduzir a quantidade de partidas ou tente novamente.`);
+      // Vercel retornou HTML de erro (timeout 504 ou crash) em vez de JSON
+      throw new Error(
+        `Erro no servidor (${res.status}). ` +
+        `Tente reduzir a quantidade de partidas ou aguarde alguns segundos.`
+      );
     }
 
     if (!res.ok) throw new Error(data.error || 'Erro desconhecido');
