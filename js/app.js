@@ -443,8 +443,8 @@
 
     // Atualiza o label do botão com o patch atual
     patchToggle.textContent = currentPatchOnly
-      ? `📅 Patch ${getPatchLabel()}`
-      : '📅 Todos os patches';
+      ? `📅 ${getPatchLabel()}`
+      : '📅 Todos os splits';
 
     if (currentData) {
       updateStats();
@@ -496,7 +496,7 @@
   // Inicializa DDragon e, após obter a versão, atualiza o label do patch
   initDDragon().then(() => {
     if (patchToggle) {
-      patchToggle.textContent = `📅 Patch ${getPatchLabel()}`;
+      patchToggle.textContent = `📅 ${getPatchLabel()}`;
     }
   }).catch(() => {});
 

@@ -45,12 +45,19 @@ async function getAllChampionIds() {
   }
 }
 
-// Calcula o timestamp de início do patch atual baseado na versão do DDragon.
+// Calcula o timestamp de início do SPLIT atual baseado na versão do DDragon.
 // Formato da versão: "YY.P.x" ex: "26.7.1"
 // Regra de mapeamento de versão para ano real:
 //   versão < 20  → ano = versão + 2010  (ex: 14 → 2024)
 //   versão >= 20 → ano = versão + 2000  (ex: 26 → 2026)
-// Temporada começa ~8 de janeiro; cada patch dura ~14 dias.
+//
+// Estrutura de splits por ano (cada split ≈ 8 patches de ~14 dias):
+//   Split 1: patches 1–8   → começa ~08 de janeiro
+//   Split 2: patches 9–16  → começa ~08 de janeiro + 112 dias (~01 de maio)
+//   Split 3: patches 17+   → começa ~08 de janeiro + 224 dias (~19 de agosto)
+//
+// Isso alinha com a "Jornada da Temporada" do jogo, que conta campeões
+// desde o início do split atual — não do patch atual.
 function getPatchStartTimestamp() {
   try {
     const parts    = DD_VERSION.split('.');
@@ -58,20 +65,45 @@ function getPatchStartTimestamp() {
     const patchNum = parseInt(parts[1], 10);
     const year     = major < 20 ? major + 2010 : major + 2000;
 
-    // 8 de janeiro é o início aproximado da Season 1 de cada ano
+    // 8 de janeiro é o início aproximado do Split 1 de cada ano
     const seasonStart = new Date(year, 0, 8); // mês 0 = janeiro
-    const patchStart  = new Date(
-      seasonStart.getTime() + (patchNum - 1) * 14 * 24 * 60 * 60 * 1000
+
+    // Determina o patch de início do split atual.
+    // Cada split cobre ~8 patches (8 × 14 dias ≈ 16 semanas ≈ 4 meses).
+    let splitStartPatch;
+    if (patchNum <= 8) {
+      splitStartPatch = 1;   // Split 1: patches 1–8
+    } else if (patchNum <= 16) {
+      splitStartPatch = 9;   // Split 2: patches 9–16
+    } else {
+      splitStartPatch = 17;  // Split 3: patches 17+
+    }
+
+    const splitStart = new Date(
+      seasonStart.getTime() + (splitStartPatch - 1) * 14 * 24 * 60 * 60 * 1000
     );
-    return patchStart.getTime();
+    return splitStart.getTime();
   } catch {
-    // Fallback: 14 dias atrás
-    return Date.now() - 14 * 24 * 60 * 60 * 1000;
+    // Fallback: 120 dias atrás (≈ 1 split completo)
+    return Date.now() - 120 * 24 * 60 * 60 * 1000;
   }
 }
 
-// Retorna o patch formatado, ex: "26.7"
+// Retorna o número do split atual: 1, 2 ou 3
+function getCurrentSplitNumber() {
+  try {
+    const patchNum = parseInt(DD_VERSION.split('.')[1], 10);
+    if (patchNum <= 8)  return 1;
+    if (patchNum <= 16) return 2;
+    return 3;
+  } catch {
+    return 1;
+  }
+}
+
+// Retorna o label do split atual, ex: "Split 1 · 26.7"
 function getPatchLabel() {
   const parts = DD_VERSION.split('.');
-  return parts.length >= 2 ? `${parts[0]}.${parts[1]}` : DD_VERSION;
+  const versionLabel = parts.length >= 2 ? `${parts[0]}.${parts[1]}` : DD_VERSION;
+  return `Split ${getCurrentSplitNumber()} · ${versionLabel}`;
 }
