@@ -50,8 +50,8 @@ async function riotFetch(url, apiKey, retries = 2) {
   return res.json();
 }
 
-// Busca em paralelo com limite de concorrência
-async function fetchInBatches(urls, apiKey, batchSize = 8) {
+// Busca em paralelo com limite de concorrência — batch maior e delay menor para caber no timeout
+async function fetchInBatches(urls, apiKey, batchSize = 12) {
   const results = [];
   for (let i = 0; i < urls.length; i += batchSize) {
     const batch = urls.slice(i, i + batchSize);
@@ -59,9 +59,8 @@ async function fetchInBatches(urls, apiKey, batchSize = 8) {
       batch.map(url => riotFetch(url, apiKey))
     );
     results.push(...settled);
-    // Pequena pausa entre batches para não estourar rate limit
     if (i + batchSize < urls.length) {
-      await new Promise(r => setTimeout(r, 120));
+      await new Promise(r => setTimeout(r, 50)); // 50ms entre batches (era 120ms)
     }
   }
   return results;
@@ -80,7 +79,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'RIOT_API_KEY não configurada no servidor.' });
   }
 
-  const { gameName, tagLine, platform = 'br1', count = '60' } = req.query;
+  const { gameName, tagLine, platform = 'br1', count = '100' } = req.query;
 
   if (!gameName || !tagLine) {
     return res.status(400).json({ error: 'Parâmetros gameName e tagLine são obrigatórios.' });
@@ -88,22 +87,6 @@ export default async function handler(req, res) {
 
   const regional = PLATFORM_TO_REGIONAL[platform.toLowerCase()] || 'americas';
   const matchCount = Math.min(Math.max(parseInt(count, 10) || 100, 1), 100);
-
-  // Busca IDs paginando de 100 em 100 até atingir o total solicitado
-  async function fetchAllMatchIds(puuid, total) {
-    const ids = [];
-    const batchSize = 100;
-    for (let start = 0; ids.length < total; start += batchSize) {
-      const needed = Math.min(batchSize, total - ids.length);
-      const batch = await riotFetch(
-        `https://${regional}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=1700&start=${start}&count=${needed}`,
-        apiKey
-      );
-      ids.push(...batch);
-      if (batch.length < needed) break; // não há mais partidas
-    }
-    return ids;
-  }
 
   try {
     // 1. PUUID via Riot ID
@@ -113,8 +96,11 @@ export default async function handler(req, res) {
     );
     const { puuid } = account;
 
-    // 2. IDs das partidas de Arena (queue 1700) — com paginação
-    const matchIds = await fetchAllMatchIds(puuid, matchCount);
+    // 2. IDs das partidas de Arena (queue 1700) — uma única chamada até 100
+    const matchIds = await riotFetch(
+      `https://${regional}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=1700&count=${matchCount}`,
+      apiKey
+    );
 
     if (!matchIds.length) {
       return res.status(200).json({
@@ -131,7 +117,7 @@ export default async function handler(req, res) {
     const matchUrls = matchIds.map(id =>
       `https://${regional}.api.riotgames.com/lol/match/v5/matches/${id}`
     );
-    const settled = await fetchInBatches(matchUrls, apiKey, 8);
+    const settled = await fetchInBatches(matchUrls, apiKey);
 
     // 4. Agrega por campeão
     const champStats = {};
