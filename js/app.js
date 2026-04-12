@@ -11,7 +11,6 @@
   let filterText       = '';
   let showOnlyFirst    = true;    // apenas 1º lugar (padrão ativo)
   let showUnplayed     = false;   // campeões ainda não jogados
-  let currentPatchOnly = true;    // filtrar pelo patch atual (padrão: ativo)
   let allChampionIds   = [];      // todos os champs do DDragon
 
   // ---- DOM ----
@@ -28,7 +27,6 @@
   const sortSelect     = document.getElementById('sort-select');
   const firstToggle    = document.getElementById('first-toggle');
   const unplayedToggle = document.getElementById('unplayed-toggle');  // NOVO
-  const patchToggle    = document.getElementById('patch-toggle');      // NOVO
   const statGames      = document.getElementById('stat-games');
   const statWins       = document.getElementById('stat-wins');
   const statWinrate    = document.getElementById('stat-winrate');
@@ -102,9 +100,7 @@
   function getActiveChampions() {
     if (!currentData) return {};
     // Sempre recalcula no client para garantir firstPlaceWins disponível
-    const matches = currentPatchOnly
-      ? currentData.matches.filter(m => m.date >= getPatchStartTimestamp())
-      : currentData.matches;
+    const matches = currentData.matches.filter(m => m.date >= getPatchStartTimestamp());
     return computeChampStats(matches);
   }
 
@@ -115,9 +111,7 @@
     const champEntries = Object.entries(activeChamps);
 
     // Partidas totais do período
-    const matches = currentPatchOnly
-      ? currentData.matches.filter(m => m.date >= getPatchStartTimestamp())
-      : currentData.matches;
+    const matches = currentData.matches.filter(m => m.date >= getPatchStartTimestamp());
     const totalGames = matches.length;
 
     // Vitórias em 1º lugar
@@ -259,10 +253,8 @@
 
     if (filtered.length === 0) {
       const msg = showOnlyFirst
-        ? 'Nenhum 1º lugar encontrado.'
-        : currentPatchOnly
-          ? 'Nenhuma partida encontrada neste patch.'
-          : 'Nenhum campeão encontrado.';
+        ? 'Nenhum 1º lugar encontrado no split atual.'
+        : 'Nenhuma partida encontrada no split atual.';
       champGrid.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">🔍</div>
@@ -305,9 +297,7 @@
     unplayed.sort((a, b) => a.localeCompare(b));
 
     if (unplayed.length === 0) {
-      const msg = currentPatchOnly
-        ? '🎉 Você jogou com todos os campeões neste patch!'
-        : '🎉 Você jogou com todos os campeões!';
+      const msg = '🎉 Você jogou com todos os campeões no split atual!';
       champGrid.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">🏆</div>
@@ -436,21 +426,7 @@
     renderGrid();
   });
 
-  patchToggle?.addEventListener('click', () => {
-    currentPatchOnly = !currentPatchOnly;
-    patchToggle.classList.toggle('active-patch', currentPatchOnly);
-    patchToggle.setAttribute('aria-pressed', currentPatchOnly.toString());
 
-    // Atualiza o label do botão com o patch atual
-    patchToggle.textContent = currentPatchOnly
-      ? `📅 ${getPatchLabel()}`
-      : '📅 Todos os splits';
-
-    if (currentData) {
-      updateStats();
-      renderGrid();
-    }
-  });
 
   // ---- Helpers visuais ----
   function setLoading(on) {
@@ -493,12 +469,8 @@
   function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
 
   // ---- Init ----
-  // Inicializa DDragon e, após obter a versão, atualiza o label do patch
-  initDDragon().then(() => {
-    if (patchToggle) {
-      patchToggle.textContent = `📅 ${getPatchLabel()}`;
-    }
-  }).catch(() => {});
+  // Inicializa DDragon
+  initDDragon().catch(() => {});
 
   // Anima o placeholder do input
   const placeholders = ['Faker', 'Caps', 'Ruler', 'Zeus', 'Keria'];
