@@ -29,14 +29,31 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-// Fetch com retry automático em 429 (rate limit)
+// Fetch com retry automático em 429 (rate limit) e timeout de 8s por request
 async function riotFetch(url, apiKey, retries = 2) {
-  const res = await fetch(url, {
-    headers: { 'X-Riot-Token': apiKey },
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000); // 8s por request
+
+  let res;
+  try {
+    res = await fetch(url, {
+      headers: { 'X-Riot-Token': apiKey },
+      signal: controller.signal,
+    });
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      const e = new Error(`Riot API timeout: ${url}`);
+      e.status = 504;
+      throw e;
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (res.status === 429 && retries > 0) {
-    const retryAfter = parseInt(res.headers.get('Retry-After') || '1', 10);
+    // Limita o Retry-After a no máximo 5s para não estourar o timeout do Vercel
+    const retryAfter = Math.min(parseInt(res.headers.get('Retry-After') || '1', 10), 5);
     await new Promise(r => setTimeout(r, retryAfter * 1000));
     return riotFetch(url, apiKey, retries - 1);
   }
@@ -50,8 +67,8 @@ async function riotFetch(url, apiKey, retries = 2) {
   return res.json();
 }
 
-// Busca em paralelo com limite de concorrência
-async function fetchInBatches(urls, apiKey, batchSize = 8) {
+// Busca em paralelo com limite de concorrência — batch maior e delay menor para caber no timeout
+async function fetchInBatches(urls, apiKey, batchSize = 12) {
   const results = [];
   for (let i = 0; i < urls.length; i += batchSize) {
     const batch = urls.slice(i, i + batchSize);
@@ -59,9 +76,8 @@ async function fetchInBatches(urls, apiKey, batchSize = 8) {
       batch.map(url => riotFetch(url, apiKey))
     );
     results.push(...settled);
-    // Pequena pausa entre batches para não estourar rate limit
     if (i + batchSize < urls.length) {
-      await new Promise(r => setTimeout(r, 120));
+      await new Promise(r => setTimeout(r, 50)); // 50ms entre batches (era 120ms)
     }
   }
   return results;
@@ -80,14 +96,18 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'RIOT_API_KEY não configurada no servidor.' });
   }
 
-  const { gameName, tagLine, platform = 'br1', count = '60' } = req.query;
+  const { gameName, tagLine, platform = 'br1', count = '100' } = req.query;
 
   if (!gameName || !tagLine) {
     return res.status(400).json({ error: 'Parâmetros gameName e tagLine são obrigatórios.' });
   }
 
-  const regional = PLATFORM_TO_REGIONAL[platform.toLowerCase()] || 'americas';
-  const matchCount = Math.min(Math.max(parseInt(count, 10) || 60, 1), 100);
+  const regional   = PLATFORM_TO_REGIONAL[platform.toLowerCase()] || 'americas';
+  const matchCount = Math.min(Math.max(parseInt(count, 10) || 100, 1), 100);
+
+  // startTime removido: a Riot API ignora o count quando startTime está presente,
+  // retornando apenas ~20 jogos do patch. O filtro de patch é client-side.
+  const startTimeParam = '';
 
   try {
     // 1. PUUID via Riot ID
@@ -98,8 +118,9 @@ export default async function handler(req, res) {
     const { puuid } = account;
 
     // 2. IDs das partidas de Arena (queue 1700)
+    // Com startTime → retorna apenas matches do patch atual (~15-25), bem mais rápido
     const matchIds = await riotFetch(
-      `https://${regional}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=1700&count=${matchCount}`,
+      `https://${regional}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=1700&count=${matchCount}${startTimeParam}`,
       apiKey
     );
 
@@ -118,7 +139,7 @@ export default async function handler(req, res) {
     const matchUrls = matchIds.map(id =>
       `https://${regional}.api.riotgames.com/lol/match/v5/matches/${id}`
     );
-    const settled = await fetchInBatches(matchUrls, apiKey, 8);
+    const settled = await fetchInBatches(matchUrls, apiKey);
 
     // 4. Agrega por campeão
     const champStats = {};

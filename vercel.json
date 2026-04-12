@@ -1,44 +1,217 @@
-{
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "functions": {
-    "api/matches.js": { "maxDuration": 60 }
-  },
-  "headers": [
-    {
-      "source": "/sw.js",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
-        { "key": "Service-Worker-Allowed", "value": "/" }
-      ]
-    },
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" }
-      ]
-    },
-    {
-      "source": "/(.*)\\.js",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
-      ]
-    },
-    {
-      "source": "/(.*)\\.css",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
-      ]
-    },
-    {
-      "source": "/index.html",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
-      ]
-    }
-  ]
-}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TDAH.GG — Importe automaticamente seus campeões do Arena direto da Riot API.">
+  <meta name="theme-color" content="#03030a">
+  <title>TDAH.GG — Arena Import</title>
+
+  <!-- Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://ddragon.leagueoflegends.com" crossorigin>
+  <link rel="dns-prefetch" href="https://ddragon.leagueoflegends.com">
+
+  <!-- Fonts: non-blocking -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap"></noscript>
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+<div class="app">
+
+  <!-- NAV -->
+  <nav class="nav" aria-label="Navegação principal">
+    <a class="nav__logo" href="/" aria-label="TDAH.GG início">
+      TDAH<span>.GG</span>
+    </a>
+    <span class="nav__badge">Arena Import</span>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero" aria-label="Buscar histórico de Arena">
+    <div class="hero__inner">
+
+      <h1 class="hero__title" aria-label="TDAH.GG">
+        <span class="hero-brand">TDAH<span class="hero-brand__gg">.GG</span></span>
+      </h1>
+
+      <p class="hero__sub">
+        Digite seu Riot ID e veja automaticamente todos os campeões que você jogou no Arena, com vitórias, derrotas e winrate.
+      </p>
+
+      <!-- Search Card -->
+      <div class="search-card">
+        <form id="search-form" novalidate>
+
+          <div class="input-row">
+            <!-- Nome + Tag -->
+            <div class="input-name-wrap" role="group" aria-label="Riot ID">
+              <input
+                type="text"
+                class="input-name"
+                id="input-name"
+                placeholder="Faker"
+                autocomplete="off"
+                spellcheck="false"
+                maxlength="64"
+                aria-label="Nome do invocador"
+                required>
+              <span class="input-separator" aria-hidden="true">#</span>
+              <input
+                type="text"
+                class="input-tag"
+                id="input-tag"
+                placeholder="BR1"
+                autocomplete="off"
+                maxlength="8"
+                aria-label="Tag do Riot ID"
+                required>
+            </div>
+
+            <!-- Região -->
+            <select class="input-region" id="input-region" aria-label="Servidor / Região">
+              <option value="br1"  selected>BR — Brasil</option>
+              <option value="na1">NA — Norte-América</option>
+              <option value="euw1">EUW — Europa Oeste</option>
+              <option value="eun1">EUNE — Europa Norte/Leste</option>
+              <option value="kr">KR — Coreia</option>
+              <option value="jp1">JP — Japão</option>
+              <option value="la1">LAN — América Latina Norte</option>
+              <option value="la2">LAS — América Latina Sul</option>
+              <option value="oc1">OCE — Oceania</option>
+              <option value="tr1">TR — Turquia</option>
+              <option value="ru">RU — Rússia</option>
+            </select>
+          </div>
+
+          <!-- Opções -->
+          <div class="options-row">
+            <span class="count-label">Últimas</span>
+            <select class="count-select" id="input-count" aria-label="Quantidade de partidas a buscar">
+              <option value="20">20 partidas</option>
+              <option value="40">40 partidas</option>
+              <option value="60">60 partidas</option>
+              <option value="100" selected>100 partidas</option>
+            </select>
+            <span class="count-label">de Arena</span>
+          </div>
+
+          <!-- Botão -->
+          <button type="submit" class="btn-search" id="btn-search" aria-label="Buscar partidas de Arena">
+            Buscar Partidas
+          </button>
+
+        </form>
+
+        <!-- Loading -->
+        <div class="loading-box hidden" id="loading-box" aria-live="polite" aria-label="Carregando dados">
+          <div class="loading-terminal">
+            <p>▸ Localizando invocador…</p>
+            <p>▸ Buscando partidas de Arena…</p>
+            <p>▸ Processando histórico…</p>
+            <p>▸ Calculando estatísticas…</p>
+          </div>
+          <div class="loading-bar"><div class="loading-bar__fill"></div></div>
+        </div>
+
+        <!-- Erro -->
+        <div class="error-box hidden" id="error-box" role="alert" aria-live="assertive"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="results hidden" id="results" aria-label="Resultados">
+
+    <!-- Player + Stats -->
+    <div class="player-header">
+      <div class="player-badge" id="player-badge" aria-label="Informações do jogador"></div>
+    </div>
+
+    <div class="stats-bar" role="region" aria-label="Estatísticas gerais">
+      <div class="stat-card">
+        <div class="stat-card__value" id="stat-games">0</div>
+        <div class="stat-card__label">Partidas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value" id="stat-wins">0</div>
+        <div class="stat-card__label">Vitórias</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value" id="stat-winrate">0%</div>
+        <div class="stat-card__label">Winrate</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value" id="stat-champs">0</div>
+        <div class="stat-card__label">Campeões</div>
+      </div>
+    </div>
+
+    <!-- Controles -->
+    <div class="controls-row" role="toolbar" aria-label="Filtros e ordenação">
+      <div class="ctrl-input-wrap">
+        <span class="ctrl-icon" aria-hidden="true">🔍</span>
+        <input
+          type="text"
+          class="ctrl-input"
+          id="filter-input"
+          placeholder="Filtrar campeão…"
+          autocomplete="off"
+          aria-label="Filtrar por nome do campeão">
+      </div>
+
+      <select class="ctrl-select" id="sort-select" aria-label="Ordenar por">
+        <option value="games">Mais jogado</option>
+        <option value="wins">Mais vitórias</option>
+        <option value="winrate">Melhor winrate</option>
+        <option value="placement">Melhor placement</option>
+        <option value="recent">Mais recente</option>
+        <option value="name">A → Z</option>
+      </select>
+
+      <!-- Só vitórias -->
+      <button class="ctrl-toggle" id="won-toggle" aria-pressed="false" aria-label="Mostrar apenas campeões com vitória">
+        🏆 Só vitórias
+      </button>
+
+      <!-- Não jogados — NOVO -->
+      <button class="ctrl-toggle" id="unplayed-toggle" aria-pressed="false" aria-label="Mostrar campeões ainda não jogados no Arena">
+        🎮 Não jogados
+      </button>
+
+      <!-- Patch atual — ativo por padrão -->
+      <button class="ctrl-toggle active-patch" id="patch-toggle" aria-pressed="true" aria-label="Filtrar apenas partidas do patch atual">
+        📅 Patch atual
+      </button>
+    </div>
+
+    <!-- Grid -->
+    <div class="champ-grid" id="champ-grid" aria-label="Campeões jogados no Arena" aria-live="polite"></div>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span>TDAH.GG · Não afiliado com a Riot Games · Feito por <a href="https://www.instagram.com/dev.thigas/" target="_blank" rel="noopener">Thigas</a> 💜</span>
+  </footer>
+
+</div>
+
+<!-- Service Worker -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
+</script>
+
+<script src="js/ddragon.js" defer></script>
+<script src="js/app.js" defer></script>
+</body>
+</html>
