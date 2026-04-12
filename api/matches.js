@@ -87,7 +87,23 @@ export default async function handler(req, res) {
   }
 
   const regional = PLATFORM_TO_REGIONAL[platform.toLowerCase()] || 'americas';
-  const matchCount = Math.min(Math.max(parseInt(count, 10) || 60, 1), 100);
+  const matchCount = Math.min(Math.max(parseInt(count, 10) || 100, 1), 100);
+
+  // Busca IDs paginando de 100 em 100 até atingir o total solicitado
+  async function fetchAllMatchIds(puuid, total) {
+    const ids = [];
+    const batchSize = 100;
+    for (let start = 0; ids.length < total; start += batchSize) {
+      const needed = Math.min(batchSize, total - ids.length);
+      const batch = await riotFetch(
+        `https://${regional}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=1700&start=${start}&count=${needed}`,
+        apiKey
+      );
+      ids.push(...batch);
+      if (batch.length < needed) break; // não há mais partidas
+    }
+    return ids;
+  }
 
   try {
     // 1. PUUID via Riot ID
@@ -97,11 +113,8 @@ export default async function handler(req, res) {
     );
     const { puuid } = account;
 
-    // 2. IDs das partidas de Arena (queue 1700)
-    const matchIds = await riotFetch(
-      `https://${regional}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=1700&count=${matchCount}`,
-      apiKey
-    );
+    // 2. IDs das partidas de Arena (queue 1700) — com paginação
+    const matchIds = await fetchAllMatchIds(puuid, matchCount);
 
     if (!matchIds.length) {
       return res.status(200).json({
