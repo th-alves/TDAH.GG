@@ -79,7 +79,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'RIOT_API_KEY não configurada no servidor.' });
   }
 
-  const { gameName, tagLine, platform = 'br1', count = '100', patchStart } = req.query;
+  const { gameName, tagLine, platform = 'br1', count = '100' } = req.query;
 
   if (!gameName || !tagLine) {
     return res.status(400).json({ error: 'Parâmetros gameName e tagLine são obrigatórios.' });
@@ -88,8 +88,9 @@ export default async function handler(req, res) {
   const regional   = PLATFORM_TO_REGIONAL[platform.toLowerCase()] || 'americas';
   const matchCount = Math.min(Math.max(parseInt(count, 10) || 100, 1), 100);
 
-  // Se patchStart vier do cliente, filtra pela Riot API → muito menos matches
-  const startTimeParam = patchStart ? `&startTime=${patchStart}` : '';
+  // startTime removido: a Riot API ignora o count quando startTime está presente,
+  // retornando apenas ~20 jogos do patch. O filtro de patch é client-side.
+  const startTimeParam = '';
 
   try {
     // 1. PUUID via Riot ID

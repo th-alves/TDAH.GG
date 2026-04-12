@@ -133,10 +133,11 @@
 
   // ---- Busca ----
   async function fetchMatches(gameName, tagLine, platform, count) {
-    // Passa o início do patch para a API usar o parâmetro startTime da Riot
-    // → retorna só ~15-25 matches do patch atual em vez de 100, muito mais rápido
-    const patchStartSec = Math.floor(getPatchStartTimestamp() / 1000);
-    const params = new URLSearchParams({ gameName, tagLine, platform, count, patchStart: patchStartSec });
+    // NÃO enviamos patchStart para o servidor — a Riot API ignora count quando
+    // startTime está presente e retorna apenas ~20 jogos do patch, quebrando
+    // o contador de partidas e as vitórias históricas.
+    // O filtro de patch é feito 100% no client via getActiveChampions().
+    const params = new URLSearchParams({ gameName, tagLine, platform, count });
     const res = await fetch(`/api/matches?${params}`);
 
     let data;
