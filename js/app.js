@@ -9,8 +9,7 @@
   let currentData      = null;
   let sortBy           = 'games';
   let filterText       = '';
-  let showOnlyWon      = false;
-  let showOnlyFirst    = false;   // apenas 1º lugar
+  let showOnlyFirst    = true;    // apenas 1º lugar (padrão ativo)
   let showUnplayed     = false;   // campeões ainda não jogados
   let currentPatchOnly = true;    // filtrar pelo patch atual (padrão: ativo)
   let allChampionIds   = [];      // todos os champs do DDragon
@@ -27,8 +26,7 @@
   const champGrid      = document.getElementById('champ-grid');
   const filterInput    = document.getElementById('filter-input');
   const sortSelect     = document.getElementById('sort-select');
-  const wonToggle      = document.getElementById('won-toggle');
-  const firstToggle    = document.getElementById('first-toggle');     // só 1º lugar
+  const firstToggle    = document.getElementById('first-toggle');
   const unplayedToggle = document.getElementById('unplayed-toggle');  // NOVO
   const patchToggle    = document.getElementById('patch-toggle');      // NOVO
   const statGames      = document.getElementById('stat-games');
@@ -116,23 +114,25 @@
     const activeChamps = getActiveChampions();
     const champEntries = Object.entries(activeChamps);
 
-    let totalGames, totalWins;
-    if (currentPatchOnly) {
-      const patchStart   = getPatchStartTimestamp();
-      const patchMatches = currentData.matches.filter(m => m.date >= patchStart);
-      totalGames = patchMatches.length;
-      totalWins  = patchMatches.filter(m => m.win).length;
-    } else {
-      totalGames = currentData.totalGames;
-      totalWins  = champEntries.reduce((a, [, v]) => a + v.wins, 0);
-    }
+    // Partidas totais do período
+    const matches = currentPatchOnly
+      ? currentData.matches.filter(m => m.date >= getPatchStartTimestamp())
+      : currentData.matches;
+    const totalGames = matches.length;
 
-    const totalWinrate = totalGames > 0 ? Math.round((totalWins / totalGames) * 100) : 0;
+    // Vitórias em 1º lugar
+    const totalFirst = champEntries.reduce((a, [, v]) => a + v.firstPlaceWins, 0);
+
+    // % de partidas que terminaram em 1º
+    const firstRate = totalGames > 0 ? Math.round((totalFirst / totalGames) * 100) : 0;
+
+    // Campeões com pelo menos um 1º lugar
+    const champsWithFirst = champEntries.filter(([, v]) => v.firstPlaceWins > 0).length;
 
     animateCount(statGames,   0, totalGames);
-    animateCount(statWins,    0, totalWins);
-    animateCount(statWinrate, 0, totalWinrate, '%');
-    animateCount(statChamps,  0, champEntries.length);
+    animateCount(statWins,    0, totalFirst);
+    animateCount(statWinrate, 0, firstRate, '%');
+    animateCount(statChamps,  0, champsWithFirst);
   }
 
   // ---- Busca ----
@@ -247,8 +247,6 @@
     }
     if (showOnlyFirst) {
       filtered = filtered.filter(([, v]) => v.firstPlaceWins > 0);
-    } else if (showOnlyWon) {
-      filtered = filtered.filter(([, v]) => v.wins > 0);
     }
 
     // Sort
@@ -264,9 +262,7 @@
         ? 'Nenhum 1º lugar encontrado.'
         : currentPatchOnly
           ? 'Nenhuma partida encontrada neste patch.'
-          : showOnlyWon
-            ? 'Nenhuma vitória encontrada.'
-            : 'Nenhum campeão encontrado.';
+          : 'Nenhum campeão encontrado.';
       champGrid.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">🔍</div>
@@ -414,31 +410,12 @@
     renderGrid();
   });
 
-  wonToggle?.addEventListener('click', () => {
-    showOnlyWon = !showOnlyWon;
-    wonToggle.classList.toggle('active', showOnlyWon);
-    wonToggle.setAttribute('aria-pressed', showOnlyWon.toString());
-    // Desativa os outros filtros exclusivos
-    if (showOnlyWon) {
-      showOnlyFirst = false;
-      firstToggle?.classList.remove('active');
-      firstToggle?.setAttribute('aria-pressed', 'false');
-      showUnplayed = false;
-      unplayedToggle?.classList.remove('active', 'active-unplayed');
-      unplayedToggle?.setAttribute('aria-pressed', 'false');
-    }
-    renderGrid();
-  });
-
   firstToggle?.addEventListener('click', () => {
     showOnlyFirst = !showOnlyFirst;
     firstToggle.classList.toggle('active', showOnlyFirst);
     firstToggle.setAttribute('aria-pressed', showOnlyFirst.toString());
-    // Desativa os outros filtros exclusivos
+    // Desativa "não jogados" ao ativar 1º lugar
     if (showOnlyFirst) {
-      showOnlyWon = false;
-      wonToggle?.classList.remove('active');
-      wonToggle?.setAttribute('aria-pressed', 'false');
       showUnplayed = false;
       unplayedToggle?.classList.remove('active', 'active-unplayed');
       unplayedToggle?.setAttribute('aria-pressed', 'false');
@@ -450,11 +427,8 @@
     showUnplayed = !showUnplayed;
     unplayedToggle.classList.toggle('active-unplayed', showUnplayed);
     unplayedToggle.setAttribute('aria-pressed', showUnplayed.toString());
-    // Desativa os outros filtros exclusivos ao ativar "não jogados"
+    // Desativa "1º lugar" ao ativar "não jogados"
     if (showUnplayed) {
-      showOnlyWon = false;
-      wonToggle?.classList.remove('active');
-      wonToggle?.setAttribute('aria-pressed', 'false');
       showOnlyFirst = false;
       firstToggle?.classList.remove('active');
       firstToggle?.setAttribute('aria-pressed', 'false');

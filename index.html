@@ -140,11 +140,11 @@
       </div>
       <div class="stat-card">
         <div class="stat-card__value" id="stat-wins">0</div>
-        <div class="stat-card__label">Vitórias</div>
+        <div class="stat-card__label">Vitórias em 1º</div>
       </div>
       <div class="stat-card">
         <div class="stat-card__value" id="stat-winrate">0%</div>
-        <div class="stat-card__label">Winrate</div>
+        <div class="stat-card__label">% em 1º lugar</div>
       </div>
       <div class="stat-card">
         <div class="stat-card__value" id="stat-champs">0</div>
@@ -174,13 +174,8 @@
         <option value="name">A → Z</option>
       </select>
 
-      <!-- Só vitórias -->
-      <button class="ctrl-toggle" id="won-toggle" aria-pressed="false" aria-label="Mostrar apenas campeões com vitória">
-        🏆 Só vitórias
-      </button>
-
-      <!-- Apenas 1º lugar -->
-      <button class="ctrl-toggle" id="first-toggle" aria-pressed="false" aria-label="Mostrar apenas campeões onde você ficou em 1º lugar">
+      <!-- Apenas 1º lugar — ativo por padrão -->
+      <button class="ctrl-toggle active" id="first-toggle" aria-pressed="true" aria-label="Mostrar apenas campeões onde você ficou em 1º lugar">
         🥇 1º lugar
       </button>
 
