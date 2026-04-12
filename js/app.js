@@ -10,6 +10,7 @@
   let sortBy           = 'games';
   let filterText       = '';
   let showOnlyWon      = false;
+  let showOnlyFirst    = false;   // apenas 1º lugar
   let showUnplayed     = false;   // campeões ainda não jogados
   let currentPatchOnly = true;    // filtrar pelo patch atual (padrão: ativo)
   let allChampionIds   = [];      // todos os champs do DDragon
@@ -27,6 +28,7 @@
   const filterInput    = document.getElementById('filter-input');
   const sortSelect     = document.getElementById('sort-select');
   const wonToggle      = document.getElementById('won-toggle');
+  const firstToggle    = document.getElementById('first-toggle');     // só 1º lugar
   const unplayedToggle = document.getElementById('unplayed-toggle');  // NOVO
   const patchToggle    = document.getElementById('patch-toggle');      // NOVO
   const statGames      = document.getElementById('stat-games');
@@ -80,10 +82,11 @@
     for (const m of matches) {
       const { champion, win, placement, date } = m;
       if (!champStats[champion]) {
-        champStats[champion] = { wins: 0, losses: 0, placements: [], lastPlayed: 0 };
+        champStats[champion] = { wins: 0, losses: 0, firstPlaceWins: 0, placements: [], lastPlayed: 0 };
       }
       if (win) champStats[champion].wins++;
       else     champStats[champion].losses++;
+      if (placement === 1) champStats[champion].firstPlaceWins++;
       champStats[champion].placements.push(placement);
       if (date > champStats[champion].lastPlayed) champStats[champion].lastPlayed = date;
     }
@@ -100,10 +103,11 @@
   // ---- Retorna os campeões ativos (respeitando filtro de patch) ----
   function getActiveChampions() {
     if (!currentData) return {};
-    if (!currentPatchOnly) return currentData.champions;
-    const patchStart   = getPatchStartTimestamp();
-    const patchMatches = currentData.matches.filter(m => m.date >= patchStart);
-    return computeChampStats(patchMatches);
+    // Sempre recalcula no client para garantir firstPlaceWins disponível
+    const matches = currentPatchOnly
+      ? currentData.matches.filter(m => m.date >= getPatchStartTimestamp())
+      : currentData.matches;
+    return computeChampStats(matches);
   }
 
   // ---- Atualiza a barra de stats ----
@@ -241,7 +245,9 @@
       const q = filterText.toLowerCase();
       filtered = filtered.filter(([id]) => id.toLowerCase().includes(q));
     }
-    if (showOnlyWon) {
+    if (showOnlyFirst) {
+      filtered = filtered.filter(([, v]) => v.firstPlaceWins > 0);
+    } else if (showOnlyWon) {
       filtered = filtered.filter(([, v]) => v.wins > 0);
     }
 
@@ -254,11 +260,13 @@
     if (sortBy === 'name')      filtered.sort((a, b) => a[0].localeCompare(b[0]));
 
     if (filtered.length === 0) {
-      const msg = currentPatchOnly
-        ? 'Nenhuma partida encontrada neste patch.'
-        : showOnlyWon
-          ? 'Nenhuma vitória encontrada.'
-          : 'Nenhum campeão encontrado.';
+      const msg = showOnlyFirst
+        ? 'Nenhum 1º lugar encontrado.'
+        : currentPatchOnly
+          ? 'Nenhuma partida encontrada neste patch.'
+          : showOnlyWon
+            ? 'Nenhuma vitória encontrada.'
+            : 'Nenhum campeão encontrado.';
       champGrid.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">🔍</div>
@@ -410,8 +418,27 @@
     showOnlyWon = !showOnlyWon;
     wonToggle.classList.toggle('active', showOnlyWon);
     wonToggle.setAttribute('aria-pressed', showOnlyWon.toString());
-    // Desativa "não jogados" ao ativar "só vitórias"
-    if (showOnlyWon && showUnplayed) {
+    // Desativa os outros filtros exclusivos
+    if (showOnlyWon) {
+      showOnlyFirst = false;
+      firstToggle?.classList.remove('active');
+      firstToggle?.setAttribute('aria-pressed', 'false');
+      showUnplayed = false;
+      unplayedToggle?.classList.remove('active', 'active-unplayed');
+      unplayedToggle?.setAttribute('aria-pressed', 'false');
+    }
+    renderGrid();
+  });
+
+  firstToggle?.addEventListener('click', () => {
+    showOnlyFirst = !showOnlyFirst;
+    firstToggle.classList.toggle('active', showOnlyFirst);
+    firstToggle.setAttribute('aria-pressed', showOnlyFirst.toString());
+    // Desativa os outros filtros exclusivos
+    if (showOnlyFirst) {
+      showOnlyWon = false;
+      wonToggle?.classList.remove('active');
+      wonToggle?.setAttribute('aria-pressed', 'false');
       showUnplayed = false;
       unplayedToggle?.classList.remove('active', 'active-unplayed');
       unplayedToggle?.setAttribute('aria-pressed', 'false');
@@ -423,11 +450,14 @@
     showUnplayed = !showUnplayed;
     unplayedToggle.classList.toggle('active-unplayed', showUnplayed);
     unplayedToggle.setAttribute('aria-pressed', showUnplayed.toString());
-    // Desativa "só vitórias" ao ativar "não jogados"
-    if (showUnplayed && showOnlyWon) {
+    // Desativa os outros filtros exclusivos ao ativar "não jogados"
+    if (showUnplayed) {
       showOnlyWon = false;
       wonToggle?.classList.remove('active');
       wonToggle?.setAttribute('aria-pressed', 'false');
+      showOnlyFirst = false;
+      firstToggle?.classList.remove('active');
+      firstToggle?.setAttribute('aria-pressed', 'false');
     }
     renderGrid();
   });
