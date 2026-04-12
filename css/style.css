@@ -130,16 +130,6 @@ body::after {
   text-align: center;
 }
 
-.hero__eyebrow {
-  font-family: var(--font-m);
-  font-size: 0.72rem;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--cyan);
-  margin-bottom: 20px;
-  opacity: 0;
-  animation: fadeUp 0.6s var(--spring) 0.1s forwards;
-}
 
 .hero__title {
   font-family: var(--font-d);
@@ -148,59 +138,9 @@ body::after {
   margin-bottom: 24px;
   opacity: 0;
   animation: fadeUp 0.6s var(--spring) 0.2s forwards;
-
-  /* Container dos dois slots animados */
-  position: relative;
-  min-height: clamp(140px, 28vw, 300px);
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-/* ── Slots de título ── */
-.hero__title-slot {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Slot A: "TDAH.GG" — aparece primeiro, some depois */
-.hero__title-slot--a {
-  animation: titleSlotA 9s ease-in-out 2.5s infinite both;
-}
-
-/* Slot B: frase — surge depois, fica, some */
-.hero__title-slot--b {
-  opacity: 0; /* estado inicial antes da animação */
-  animation: titleSlotB 9s ease-in-out 2.5s infinite both;
-}
-
-@keyframes titleSlotA {
-  0%,    38%  { opacity: 1; transform: translateY(0); }
-  50%         { opacity: 0; transform: translateY(-18px); }
-  88%,  100%  { opacity: 0; transform: translateY(-18px); }
-  /* sem volta — slot A some e slot B fica até reiniciar */
-}
-
-/* Reescreve para ficar mais legível: A visível → A some → B aparece → B some → A */
-@keyframes titleSlotA {
-  0%          { opacity: 1; transform: translateY(0); }        /* início: visível */
-  38%         { opacity: 1; transform: translateY(0); }        /* segura */
-  46%         { opacity: 0; transform: translateY(-18px); }    /* some */
-  90%         { opacity: 0; transform: translateY(-18px); }    /* fica oculto */
-  100%        { opacity: 1; transform: translateY(0); }        /* volta (loop) */
-}
-
-@keyframes titleSlotB {
-  0%          { opacity: 0; transform: translateY(18px); }     /* início: oculto */
-  38%         { opacity: 0; transform: translateY(18px); }     /* segura */
-  50%         { opacity: 1; transform: translateY(0); }        /* aparece */
-  88%         { opacity: 1; transform: translateY(0); }        /* segura */
-  98%         { opacity: 0; transform: translateY(18px); }     /* some */
-  100%        { opacity: 0; transform: translateY(18px); }     /* fim */
 }
 
 /* TDAH.GG — estilo principal */
@@ -219,18 +159,6 @@ body::after {
   background-clip: text;
   text-shadow: none;
   filter: drop-shadow(0 0 20px rgba(108,99,255,0.5));
-}
-
-/* Frase do slot B */
-.hero-motto {
-  font-family: var(--font-d);
-  font-size: clamp(1.6rem, 5vw, 3rem);
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  line-height: 1.25;
-  text-align: center;
-  color: var(--text-2);
-  text-transform: uppercase;
 }
 
 .hero__title .t-white  { color: var(--text); }

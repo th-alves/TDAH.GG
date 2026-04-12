@@ -11,7 +11,7 @@
   let filterText       = '';
   let showOnlyWon      = false;
   let showUnplayed     = false;   // campeões ainda não jogados
-  let currentPatchOnly = false;   // filtrar pelo patch atual
+  let currentPatchOnly = true;    // filtrar pelo patch atual (padrão: ativo)
   let allChampionIds   = [];      // todos os champs do DDragon
 
   // ---- DOM ----
@@ -400,11 +400,9 @@
     patchToggle.setAttribute('aria-pressed', currentPatchOnly.toString());
 
     // Atualiza o label do botão com o patch atual
-    if (currentPatchOnly) {
-      patchToggle.textContent = `📅 Patch ${getPatchLabel()}`;
-    } else {
-      patchToggle.textContent = '📅 Patch atual';
-    }
+    patchToggle.textContent = currentPatchOnly
+      ? `📅 Patch ${getPatchLabel()}`
+      : '📅 Todos os patches';
 
     if (currentData) {
       updateStats();
@@ -453,7 +451,12 @@
   function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
 
   // ---- Init ----
-  initDDragon();
+  // Inicializa DDragon e, após obter a versão, atualiza o label do patch
+  initDDragon().then(() => {
+    if (patchToggle) {
+      patchToggle.textContent = `📅 Patch ${getPatchLabel()}`;
+    }
+  }).catch(() => {});
 
   // Anima o placeholder do input
   const placeholders = ['Faker', 'Caps', 'Ruler', 'Zeus', 'Keria'];
