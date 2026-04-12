@@ -79,14 +79,17 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'RIOT_API_KEY não configurada no servidor.' });
   }
 
-  const { gameName, tagLine, platform = 'br1', count = '100' } = req.query;
+  const { gameName, tagLine, platform = 'br1', count = '100', patchStart } = req.query;
 
   if (!gameName || !tagLine) {
     return res.status(400).json({ error: 'Parâmetros gameName e tagLine são obrigatórios.' });
   }
 
-  const regional = PLATFORM_TO_REGIONAL[platform.toLowerCase()] || 'americas';
+  const regional   = PLATFORM_TO_REGIONAL[platform.toLowerCase()] || 'americas';
   const matchCount = Math.min(Math.max(parseInt(count, 10) || 100, 1), 100);
+
+  // Se patchStart vier do cliente, filtra pela Riot API → muito menos matches
+  const startTimeParam = patchStart ? `&startTime=${patchStart}` : '';
 
   try {
     // 1. PUUID via Riot ID
@@ -96,9 +99,10 @@ export default async function handler(req, res) {
     );
     const { puuid } = account;
 
-    // 2. IDs das partidas de Arena (queue 1700) — uma única chamada até 100
+    // 2. IDs das partidas de Arena (queue 1700)
+    // Com startTime → retorna apenas matches do patch atual (~15-25), bem mais rápido
     const matchIds = await riotFetch(
-      `https://${regional}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=1700&count=${matchCount}`,
+      `https://${regional}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=1700&count=${matchCount}${startTimeParam}`,
       apiKey
     );
 

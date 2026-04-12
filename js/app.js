@@ -133,9 +133,20 @@
 
   // ---- Busca ----
   async function fetchMatches(gameName, tagLine, platform, count) {
-    const params = new URLSearchParams({ gameName, tagLine, platform, count });
-    const res  = await fetch(`/api/matches?${params}`);
-    const data = await res.json();
+    // Passa o início do patch para a API usar o parâmetro startTime da Riot
+    // → retorna só ~15-25 matches do patch atual em vez de 100, muito mais rápido
+    const patchStartSec = Math.floor(getPatchStartTimestamp() / 1000);
+    const params = new URLSearchParams({ gameName, tagLine, platform, count, patchStart: patchStartSec });
+    const res = await fetch(`/api/matches?${params}`);
+
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      // Vercel retornou HTML de erro (timeout ou crash) em vez de JSON
+      throw new Error(`Erro no servidor (${res.status}). Tente reduzir a quantidade de partidas ou tente novamente.`);
+    }
+
     if (!res.ok) throw new Error(data.error || 'Erro desconhecido');
     return data;
   }
