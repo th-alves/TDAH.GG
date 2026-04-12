@@ -37,10 +37,19 @@
     <div class="hero__inner">
       <p class="hero__eyebrow">▸ Riot API · Arena Mode · Queue 1700</p>
 
-      <h1 class="hero__title">
-        <span class="t-white">Seus</span><br>
-        <span class="t-violet">Campeões</span><br>
-        <span class="t-cyan">do Arena</span>
+      <!-- Título animado: alterna entre "TDAH.GG" e o subtítulo -->
+      <h1 class="hero__title" aria-label="TDAH.GG — Arena Import">
+
+        <!-- Slot A: TDAH.GG -->
+        <span class="hero__title-slot hero__title-slot--a" aria-hidden="false">
+          <span class="hero-brand">TDAH<span class="hero-brand__gg">.GG</span></span>
+        </span>
+
+        <!-- Slot B: frase -->
+        <span class="hero__title-slot hero__title-slot--b" aria-hidden="true">
+          <span class="hero-motto">Onde o filho chora<br>e a mãe não vê</span>
+        </span>
+
       </h1>
 
       <p class="hero__sub">
@@ -177,8 +186,19 @@
         <option value="name">A → Z</option>
       </select>
 
+      <!-- Só vitórias -->
       <button class="ctrl-toggle" id="won-toggle" aria-pressed="false" aria-label="Mostrar apenas campeões com vitória">
         🏆 Só vitórias
+      </button>
+
+      <!-- Não jogados — NOVO -->
+      <button class="ctrl-toggle" id="unplayed-toggle" aria-pressed="false" aria-label="Mostrar campeões ainda não jogados no Arena">
+        🎮 Não jogados
+      </button>
+
+      <!-- Patch atual — NOVO -->
+      <button class="ctrl-toggle" id="patch-toggle" aria-pressed="false" aria-label="Filtrar apenas partidas do patch atual">
+        📅 Patch atual
       </button>
     </div>
 

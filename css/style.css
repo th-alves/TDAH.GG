@@ -143,14 +143,94 @@ body::after {
 
 .hero__title {
   font-family: var(--font-d);
-  font-size: clamp(3rem, 8vw, 6rem);
   font-weight: 700;
-  line-height: 0.95;
-  letter-spacing: -1px;
   text-transform: uppercase;
   margin-bottom: 24px;
   opacity: 0;
   animation: fadeUp 0.6s var(--spring) 0.2s forwards;
+
+  /* Container dos dois slots animados */
+  position: relative;
+  min-height: clamp(140px, 28vw, 300px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Slots de título ── */
+.hero__title-slot {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Slot A: "TDAH.GG" — aparece primeiro, some depois */
+.hero__title-slot--a {
+  animation: titleSlotA 9s ease-in-out 2.5s infinite both;
+}
+
+/* Slot B: frase — surge depois, fica, some */
+.hero__title-slot--b {
+  opacity: 0; /* estado inicial antes da animação */
+  animation: titleSlotB 9s ease-in-out 2.5s infinite both;
+}
+
+@keyframes titleSlotA {
+  0%,    38%  { opacity: 1; transform: translateY(0); }
+  50%         { opacity: 0; transform: translateY(-18px); }
+  88%,  100%  { opacity: 0; transform: translateY(-18px); }
+  /* sem volta — slot A some e slot B fica até reiniciar */
+}
+
+/* Reescreve para ficar mais legível: A visível → A some → B aparece → B some → A */
+@keyframes titleSlotA {
+  0%          { opacity: 1; transform: translateY(0); }        /* início: visível */
+  38%         { opacity: 1; transform: translateY(0); }        /* segura */
+  46%         { opacity: 0; transform: translateY(-18px); }    /* some */
+  90%         { opacity: 0; transform: translateY(-18px); }    /* fica oculto */
+  100%        { opacity: 1; transform: translateY(0); }        /* volta (loop) */
+}
+
+@keyframes titleSlotB {
+  0%          { opacity: 0; transform: translateY(18px); }     /* início: oculto */
+  38%         { opacity: 0; transform: translateY(18px); }     /* segura */
+  50%         { opacity: 1; transform: translateY(0); }        /* aparece */
+  88%         { opacity: 1; transform: translateY(0); }        /* segura */
+  98%         { opacity: 0; transform: translateY(18px); }     /* some */
+  100%        { opacity: 0; transform: translateY(18px); }     /* fim */
+}
+
+/* TDAH.GG — estilo principal */
+.hero-brand {
+  font-size: clamp(3.5rem, 10vw, 7.5rem);
+  font-weight: 700;
+  letter-spacing: -2px;
+  color: var(--text);
+  line-height: 1;
+}
+
+.hero-brand__gg {
+  background: linear-gradient(135deg, var(--violet), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 0 20px rgba(108,99,255,0.5));
+}
+
+/* Frase do slot B */
+.hero-motto {
+  font-family: var(--font-d);
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--text-2);
+  text-transform: uppercase;
 }
 
 .hero__title .t-white  { color: var(--text); }
@@ -573,6 +653,56 @@ body::after {
   background: rgba(0,245,160,0.12);
   border-color: rgba(0,245,160,0.5);
   color: var(--green);
+}
+
+/* Toggle "Patch atual" — ativo em violeta */
+.ctrl-toggle.active-patch {
+  background: rgba(108,99,255,0.15);
+  border-color: rgba(108,99,255,0.55);
+  color: var(--violet);
+  text-shadow: 0 0 8px rgba(108,99,255,0.4);
+}
+
+/* Toggle "Não jogados" — ativo em ciano */
+.ctrl-toggle.active-unplayed {
+  background: rgba(0,212,255,0.12);
+  border-color: rgba(0,212,255,0.5);
+  color: var(--cyan);
+  text-shadow: 0 0 8px rgba(0,212,255,0.35);
+}
+
+/* ---- Card: campeão não jogado ---- */
+.champ-card--unplayed {
+  opacity: 0.45;
+  border-color: var(--border);
+  transition: opacity 0.2s, border-color 0.2s, transform 0.2s var(--spring), box-shadow 0.2s;
+}
+
+.champ-card--unplayed:hover {
+  opacity: 0.8;
+  border-color: rgba(0,212,255,0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 0 18px rgba(0,212,255,0.15), 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.champ-card--unplayed .champ-card__img {
+  filter: grayscale(0.85) brightness(0.6) saturate(0.3);
+}
+
+.champ-card--unplayed:hover .champ-card__img {
+  filter: grayscale(0.3) brightness(0.75) saturate(0.7);
+}
+
+.champ-card__unplayed-badge {
+  position: absolute; top: 8px; left: 8px;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.rec-unplayed {
+  color: var(--text-3);
+  font-style: italic;
+  font-size: 0.68rem;
 }
 
 /* ---- Champion Grid ---- */
