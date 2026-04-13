@@ -477,7 +477,7 @@
   initDDragon().catch(() => {});
 
   // Anima o placeholder do input
-  const placeholders = ['Faker', 'Caps', 'Ruler', 'Zeus', 'Keria'];
+  const placeholders = ['Thigas, O Grande', 'Qwsae, O Baixo', 'Naty, Teacher of English', 'Xin, A Casada', 'Max, O Mamador', 'Yago, Goza e Some'];
   let phIdx = 0;
   setInterval(() => {
     phIdx = (phIdx + 1) % placeholders.length;

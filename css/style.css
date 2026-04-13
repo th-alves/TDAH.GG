@@ -73,6 +73,15 @@ body::after {
     radial-gradient(ellipse at 50% 90%, rgba(255,45,120,0.06) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
+  animation: bgFloat 18s ease-in-out infinite;
+}
+
+@keyframes bgFloat {
+  0%   { transform: translate(0,    0)    scale(1);    filter: hue-rotate(0deg); }
+  25%  { transform: translate(4%,   6%)   scale(1.05); filter: hue-rotate(25deg); }
+  50%  { transform: translate(-3%,  4%)   scale(0.97); filter: hue-rotate(-15deg); }
+  75%  { transform: translate(5%,  -3%)   scale(1.03); filter: hue-rotate(35deg); }
+  100% { transform: translate(0,    0)    scale(1);    filter: hue-rotate(0deg); }
 }
 
 .app { position: relative; z-index: 1; }
