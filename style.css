@@ -155,8 +155,14 @@ export default async function handler(req, res) {
       if (!me) continue;
 
       const champId   = me.championName;
-      const won       = me.win === true;
-      const placement = me.placement ?? (won ? 1 : 5);
+      const won = me.win === true;
+      // me.placement é sempre enviado pela Riot API no Arena, mas se vier
+      // indefinido, NÃO assumimos 1º lugar — win=true no Arena significa top 2.
+      // Usamos 2 como fallback conservador para não inflar contagem de 1º lugar.
+      if (me.placement === undefined || me.placement === null) {
+        console.warn(`[TDAH] placement ausente — matchId:${match.metadata.matchId} champ:${me.championName} win:${won}`);
+      }
+      const placement = me.placement ?? (won ? 2 : 5);
       const gameDate  = info.gameStartTimestamp;
       const duration  = info.gameDuration; // segundos
 
