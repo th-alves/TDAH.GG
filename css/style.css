@@ -68,20 +68,96 @@ body::after {
   content: '';
   position: fixed; inset: 0;
   background:
-    radial-gradient(ellipse at 15% 40%, rgba(108,99,255,0.12) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 20%, rgba(0,212,255,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 90%, rgba(255,45,120,0.06) 0%, transparent 50%);
+    radial-gradient(ellipse at 15% 40%, rgba(108,99,255,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 20%, rgba(0,212,255,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 90%, rgba(255,45,120,0.03) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
-  animation: bgFloat 18s ease-in-out infinite;
 }
 
-@keyframes bgFloat {
-  0%   { transform: translate(0,    0)    scale(1);    filter: hue-rotate(0deg); }
-  25%  { transform: translate(4%,   6%)   scale(1.05); filter: hue-rotate(25deg); }
-  50%  { transform: translate(-3%,  4%)   scale(0.97); filter: hue-rotate(-15deg); }
-  75%  { transform: translate(5%,  -3%)   scale(1.03); filter: hue-rotate(35deg); }
-  100% { transform: translate(0,    0)    scale(1);    filter: hue-rotate(0deg); }
+/* ---- Orbs de luz animados ---- */
+.bg-orbs {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  will-change: transform;
+}
+
+.orb--violet-1 {
+  width: 650px; height: 650px;
+  background: radial-gradient(circle, rgba(108,99,255,0.45) 0%, transparent 70%);
+  top: -180px; left: -150px;
+  animation: orbFloat1 22s ease-in-out infinite;
+}
+
+.orb--cyan {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(0,212,255,0.35) 0%, transparent 70%);
+  top: 25%; right: -120px;
+  animation: orbFloat2 28s ease-in-out infinite;
+}
+
+.orb--pink {
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, rgba(255,45,120,0.3) 0%, transparent 70%);
+  bottom: -100px; left: 25%;
+  animation: orbFloat3 19s ease-in-out infinite;
+}
+
+.orb--violet-2 {
+  width: 380px; height: 380px;
+  background: radial-gradient(circle, rgba(108,99,255,0.25) 0%, transparent 70%);
+  bottom: 15%; right: 10%;
+  animation: orbFloat4 24s ease-in-out infinite;
+}
+
+.orb--green {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(0,245,160,0.15) 0%, transparent 70%);
+  top: 55%; left: 40%;
+  animation: orbFloat5 32s ease-in-out infinite;
+}
+
+@keyframes orbFloat1 {
+  0%,100% { transform: translate(0px,   0px); }
+  25%     { transform: translate(130px, 90px); }
+  50%     { transform: translate(60px,  200px); }
+  75%     { transform: translate(-70px, 110px); }
+}
+
+@keyframes orbFloat2 {
+  0%,100% { transform: translate(0px,   0px); }
+  25%     { transform: translate(-100px, 120px); }
+  50%     { transform: translate(-60px, -90px); }
+  75%     { transform: translate(-180px, 60px); }
+}
+
+@keyframes orbFloat3 {
+  0%,100% { transform: translate(0px,   0px); }
+  33%     { transform: translate(-140px, -80px); }
+  66%     { transform: translate(100px,  -130px); }
+}
+
+@keyframes orbFloat4 {
+  0%,100% { transform: translate(0px,  0px); }
+  30%     { transform: translate(-90px, -100px); }
+  60%     { transform: translate(80px,  -60px); }
+}
+
+@keyframes orbFloat5 {
+  0%,100% { transform: translate(0px,  0px); }
+  20%     { transform: translate(120px, -80px); }
+  40%     { transform: translate(-100px,-120px); }
+  60%     { transform: translate(-80px,  90px); }
+  80%     { transform: translate(90px,   60px); }
 }
 
 .app { position: relative; z-index: 1; }
