@@ -62,13 +62,17 @@
 
   function timeAgo(ts) {
     if (!ts) return '';
-    const diff = Date.now() - ts;
-    const d = Math.floor(diff / 86400000);
-    if (d === 0) return 'hoje';
-    if (d === 1) return 'ontem';
-    if (d < 7)  return `${d}d atrás`;
-    if (d < 30) return `${Math.floor(d / 7)}sem atrás`;
-    if (d < 365) return `${Math.floor(d / 30)}meses atrás`;
+    const agora   = new Date();
+    const jogado  = new Date(ts);
+    // Zera as horas para comparar apenas o dia do calendário (ignora hora/minuto/segundo)
+    const diaAgora  = new Date(agora.getFullYear(),  agora.getMonth(),  agora.getDate());
+    const diaJogado = new Date(jogado.getFullYear(), jogado.getMonth(), jogado.getDate());
+    const d = Math.round((diaAgora - diaJogado) / 86400000);
+    if (d === 0)   return 'hoje';
+    if (d === 1)   return 'ontem';
+    if (d < 7)     return `${d}d atrás`;
+    if (d < 30)    return `${Math.floor(d / 7)}sem atrás`;
+    if (d < 365)   return `${Math.floor(d / 30)}meses atrás`;
     return `${Math.floor(d / 365)}a atrás`;
   }
 
