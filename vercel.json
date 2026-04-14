@@ -2,7 +2,8 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "functions": {
-    "api/matches.js": { "maxDuration": 60 }
+    "api/matches.js":     { "maxDuration": 60 },
+    "api/leaderboard.js": { "maxDuration": 60 }
   },
   "headers": [
     {

@@ -484,4 +484,361 @@
     inputName.placeholder = placeholders[phIdx];
   }, 2000);
 
+  // ==========================================================================
+  // RANKING DE AMIGOS
+  // ==========================================================================
+
+  const RANKING_LS_FRIENDS = 'tdah_ranking_friends';
+  const RANKING_LS_CACHE   = 'tdah_ranking_cache';
+  const RANKING_CACHE_TTL  = 10 * 60 * 1000; // 10 minutos em ms
+
+  // ---- Elementos do ranking ----
+  const rankingBtn    = document.getElementById('ranking-btn');
+  const rankingDropdown = document.getElementById('ranking-dropdown');
+  const rdGearBtn     = document.getElementById('rd-gear-btn');
+  const rdManage      = document.getElementById('rd-manage');
+  const rdAddInput    = document.getElementById('rd-add-input');
+  const rdAddRegion   = document.getElementById('rd-add-region');
+  const rdAddBtn      = document.getElementById('rd-add-btn');
+  const rdFriendList  = document.getElementById('rd-friend-list');
+  const rdBody        = document.getElementById('rd-body');
+  const rdFooter      = document.getElementById('rd-footer');
+  const rdSearchBtn   = document.getElementById('rd-search-btn');
+
+  // ---- Estado do ranking ----
+  let rankingOpen     = false;
+  let manageOpen      = false;
+  let rankingFetching = false;
+
+  // ---- Persistência de amigos ----
+  function loadFriends() {
+    try { return JSON.parse(localStorage.getItem(RANKING_LS_FRIENDS) || '[]'); }
+    catch { return []; }
+  }
+  function saveFriends(list) {
+    localStorage.setItem(RANKING_LS_FRIENDS, JSON.stringify(list));
+  }
+
+  // ---- Cache de ranking ----
+  function loadRankingCache() {
+    try {
+      const raw = localStorage.getItem(RANKING_LS_CACHE);
+      if (!raw) return null;
+      const obj = JSON.parse(raw);
+      if (!obj || Date.now() - obj.fetchedAt > RANKING_CACHE_TTL) return null;
+      return obj;
+    } catch { return null; }
+  }
+  function saveRankingCache(data) {
+    localStorage.setItem(RANKING_LS_CACHE, JSON.stringify(data));
+  }
+  function clearRankingCache() {
+    localStorage.removeItem(RANKING_LS_CACHE);
+  }
+
+  // ---- Toggle dropdown ----
+  rankingBtn?.addEventListener('click', e => {
+    e.stopPropagation();
+    rankingOpen = !rankingOpen;
+    rankingBtn.setAttribute('aria-expanded', rankingOpen.toString());
+    rankingBtn.classList.toggle('is-open', rankingOpen);
+    rankingDropdown.hidden = !rankingOpen;
+    if (rankingOpen) {
+      renderFriendFooter();
+      renderRankingBody();
+    }
+  });
+
+  // Fechar ao clicar fora
+  document.addEventListener('click', e => {
+    if (rankingOpen && !rankingDropdown.contains(e.target) && e.target !== rankingBtn) {
+      closeRankingDropdown();
+    }
+  });
+
+  // Fechar com ESC
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && rankingOpen) closeRankingDropdown();
+  });
+
+  function closeRankingDropdown() {
+    rankingOpen = false;
+    rankingBtn?.setAttribute('aria-expanded', 'false');
+    rankingBtn?.classList.remove('is-open');
+    if (rankingDropdown) rankingDropdown.hidden = true;
+  }
+
+  // ---- Toggle painel de gerenciar amigos ----
+  rdGearBtn?.addEventListener('click', e => {
+    e.stopPropagation();
+    manageOpen = !manageOpen;
+    rdGearBtn.classList.toggle('is-active', manageOpen);
+    if (rdManage) rdManage.hidden = !manageOpen;
+    if (manageOpen) {
+      renderFriendListUI();
+      rdAddInput?.focus();
+    }
+  });
+
+  // ---- Adicionar amigo ----
+  function addFriendFromInput() {
+    const raw = rdAddInput?.value.trim();
+    if (!raw) return rdAddInput?.classList.add('shake');
+    const region = rdAddRegion?.value || 'br1';
+
+    // Aceita "Nome#TAG" ou "Nome TAG" ou só "Nome" (sem tag)
+    let gameName, tagLine;
+    if (raw.includes('#')) {
+      [gameName, tagLine] = raw.split('#').map(s => s.trim());
+    } else {
+      gameName = raw;
+      tagLine = '';
+    }
+    if (!gameName) return shake(rdAddInput);
+
+    const friends = loadFriends();
+    const key = `${gameName.toLowerCase()}#${tagLine.toLowerCase()}#${region}`;
+    const alreadyExists = friends.some(f =>
+      f.gameName.toLowerCase() === gameName.toLowerCase() &&
+      f.tagLine.toLowerCase() === (tagLine || '').toLowerCase() &&
+      f.platform === region
+    );
+    if (alreadyExists) {
+      rdAddInput.classList.add('shake');
+      setTimeout(() => rdAddInput.classList.remove('shake'), 400);
+      return;
+    }
+
+    friends.push({ gameName, tagLine: tagLine || '', platform: region });
+    saveFriends(friends);
+    rdAddInput.value = '';
+    renderFriendListUI();
+    renderFriendFooter();
+    clearRankingCache();
+    renderRankingBody(); // volta ao estado idle para mostrar "busque ranking"
+  }
+
+  rdAddBtn?.addEventListener('click', e => { e.stopPropagation(); addFriendFromInput(); });
+  rdAddInput?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addFriendFromInput(); } });
+
+  // ---- Renderiza lista de amigos no painel de gerenciar ----
+  function renderFriendListUI() {
+    if (!rdFriendList) return;
+    const friends = loadFriends();
+    if (friends.length === 0) {
+      rdFriendList.innerHTML = '';
+      return;
+    }
+    rdFriendList.innerHTML = friends.map((f, i) => `
+      <li class="rd__friend-item" data-idx="${i}">
+        <span>
+          <span class="rd__friend-name">${esc(f.gameName)}</span>
+          <span class="rd__friend-tag">${f.tagLine ? '#' + esc(f.tagLine) : ''}</span>
+          <span class="rd__friend-region">${esc(f.platform.toUpperCase())}</span>
+        </span>
+        <button class="rd__friend-remove" data-idx="${i}" aria-label="Remover ${esc(f.gameName)}">×</button>
+      </li>
+    `).join('');
+
+    rdFriendList.querySelectorAll('.rd__friend-remove').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.idx, 10);
+        const friends2 = loadFriends();
+        friends2.splice(idx, 1);
+        saveFriends(friends2);
+        clearRankingCache();
+        renderFriendListUI();
+        renderFriendFooter();
+        renderRankingBody();
+      });
+    });
+  }
+
+  // ---- Mostra/esconde footer (botão buscar) ----
+  function renderFriendFooter() {
+    if (!rdFooter) return;
+    const friends = loadFriends();
+    rdFooter.hidden = friends.length === 0;
+  }
+
+  // ---- Renderiza o corpo do dropdown (ranking ou idle) ----
+  function renderRankingBody() {
+    if (!rdBody) return;
+    const friends = loadFriends();
+
+    if (friends.length === 0) {
+      rdBody.innerHTML = `
+        <div class="rd__empty">
+          <div class="rd__empty-icon">👥</div>
+          <div class="rd__empty-text">Adicione amigos clicando na ⚙️</div>
+        </div>`;
+      return;
+    }
+
+    // Tenta carregar do cache
+    const cached = loadRankingCache();
+    if (cached) {
+      renderLeaderboardRows(cached.leaderboard, cached.fetchedAt);
+      return;
+    }
+
+    // Nenhum cache — mostra prompt para buscar
+    rdBody.innerHTML = `
+      <div class="rd__empty">
+        <div class="rd__empty-icon">🏆</div>
+        <div class="rd__empty-text">${friends.length} amigo${friends.length > 1 ? 's' : ''} na lista.<br>Clique em <strong>Buscar ranking</strong>!</div>
+      </div>`;
+  }
+
+  // ---- Renderiza as linhas do leaderboard ----
+  function renderLeaderboardRows(leaderboard, fetchedAt) {
+    if (!rdBody) return;
+
+    const rankClass = ['rd__rank--gold', 'rd__rank--silver', 'rd__rank--bronze'];
+    const rankEmoji = ['🥇', '🥈', '🥉'];
+
+    const rowsHtml = leaderboard.map((player, idx) => {
+      if (player.error) {
+        return `
+          <div class="rd__row has-error" aria-disabled="true">
+            <div class="rd__rank">${idx + 1}</div>
+            <div class="rd__player">
+              <div class="rd__player-name">${esc(player.gameName)}</div>
+              <div class="rd__player-error">${esc(player.error)}</div>
+            </div>
+            <div class="rd__stats">
+              <div class="rd__champs">—</div>
+            </div>
+          </div>`;
+      }
+
+      const wrClass = player.winrate >= 60 ? 'wr-high' : player.winrate >= 50 ? 'wr-mid' : '';
+      const rankLabel = idx < 3 ? rankEmoji[idx] : String(idx + 1);
+      const rankCls   = idx < 3 ? rankClass[idx] : '';
+      const tagDisplay = player.tagLine ? `#${esc(player.tagLine)}` : '';
+
+      return `
+        <div class="rd__row" role="button" tabindex="0"
+             data-name="${esc(player.gameName)}"
+             data-tag="${esc(player.tagLine)}"
+             data-platform="${esc(player.platform)}"
+             aria-label="Ver detalhes de ${esc(player.gameName)}">
+          <div class="rd__rank ${rankCls}">${rankLabel}</div>
+          <div class="rd__player">
+            <div class="rd__player-name">${esc(player.gameName)}</div>
+            <div class="rd__player-tag">${tagDisplay} · ${esc(player.platform.toUpperCase())}</div>
+          </div>
+          <div class="rd__stats">
+            <div class="rd__champs">${player.uniqueChampionsWon} <span>únicos</span></div>
+            <div class="rd__winrate ${wrClass}">${player.totalMatches}p · ${player.winrate}%</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Calcula tempo restante no cache
+    const msLeft = RANKING_CACHE_TTL - (Date.now() - fetchedAt);
+    const minLeft = Math.max(0, Math.ceil(msLeft / 60000));
+    const cacheText = minLeft > 0
+      ? `Cache: ${minLeft}min restante${minLeft > 1 ? 's' : ''}`
+      : 'Cache expirado';
+
+    rdBody.innerHTML = `
+      <div class="rd__table">${rowsHtml}</div>
+      <div class="rd__cache-bar">
+        <span>${cacheText}</span>
+        <button class="rd__cache-refresh" id="rd-cache-refresh">↺ Atualizar</button>
+      </div>`;
+
+    // Evento de refresh de cache
+    rdBody.querySelector('#rd-cache-refresh')?.addEventListener('click', e => {
+      e.stopPropagation();
+      clearRankingCache();
+      fetchRanking();
+    });
+
+    // Clique nas linhas → preenche formulário e busca
+    rdBody.querySelectorAll('.rd__row[data-name]').forEach(row => {
+      const handleSelect = () => {
+        const name     = row.dataset.name;
+        const tag      = row.dataset.tag;
+        const platform = row.dataset.platform;
+
+        // Preenche o formulário principal
+        if (inputName) inputName.value = name;
+        if (inputTag)  inputTag.value  = tag;
+        const regionOpt = inputRegion?.querySelector(`option[value="${platform}"]`);
+        if (regionOpt) inputRegion.value = platform;
+
+        // Fecha dropdown
+        closeRankingDropdown();
+
+        // Rola suavemente até o hero e dispara a busca
+        heroSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => form?.requestSubmit(), 350);
+      };
+
+      row.addEventListener('click', handleSelect);
+      row.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelect(); }
+      });
+    });
+  }
+
+  // ---- Buscar ranking via API ----
+  async function fetchRanking() {
+    if (rankingFetching) return;
+    const friends = loadFriends();
+    if (friends.length === 0) return;
+
+    rankingFetching = true;
+    rdSearchBtn.disabled = true;
+    rdSearchBtn.classList.add('loading');
+    rdSearchBtn.textContent = 'Buscando…';
+
+    // Mostra loading skeleton
+    rdBody.innerHTML = `
+      <div class="rd__loading">
+        ${friends.map(() => '<div class="rd__loading-row"></div>').join('')}
+      </div>`;
+
+    try {
+      const res = await fetch('/api/leaderboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ players: friends }),
+      });
+
+      let data;
+      try { data = await res.json(); }
+      catch { throw new Error('Resposta inválida do servidor.'); }
+
+      if (!res.ok) throw new Error(data.error || `Erro ${res.status}`);
+
+      saveRankingCache(data);
+      renderLeaderboardRows(data.leaderboard, data.fetchedAt);
+
+    } catch (err) {
+      rdBody.innerHTML = `
+        <div class="rd__empty">
+          <div class="rd__empty-icon">⚠️</div>
+          <div class="rd__empty-text">${esc(err.message)}</div>
+        </div>`;
+    } finally {
+      rankingFetching = false;
+      if (rdSearchBtn) {
+        rdSearchBtn.disabled = false;
+        rdSearchBtn.classList.remove('loading');
+        rdSearchBtn.innerHTML = `
+          <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+          </svg>
+          Buscar ranking`;
+      }
+    }
+  }
+
+  rdSearchBtn?.addEventListener('click', e => { e.stopPropagation(); fetchRanking(); });
+
 })();
+
