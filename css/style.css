@@ -1351,3 +1351,21 @@ body::after {
   .ranking-dropdown { width: calc(100vw - 24px); right: -8px; }
   .nav__badge { display: none; }
 }
+
+/* Badge "padrão" nos amigos default */
+.rd__friend-item--default {
+  border-color: rgba(108,99,255,0.25);
+}
+.rd__friend-default-badge {
+  display: inline-block;
+  font-size: 0.58rem;
+  font-family: var(--font-m);
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(108,99,255,0.15);
+  color: var(--violet);
+  border: 1px solid rgba(108,99,255,0.3);
+  margin-left: 5px;
+  vertical-align: middle;
+  letter-spacing: 0.5px;
+}

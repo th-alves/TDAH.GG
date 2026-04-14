@@ -510,10 +510,25 @@
   let manageOpen      = false;
   let rankingFetching = false;
 
+  // ---- Amigos padrão (aparecem pra todo mundo na primeira visita) ----
+  const DEFAULT_FRIENDS = [
+    { gameName: 'TDAH Thigas シ', tagLine: 'lulu',  platform: 'br1', isDefault: true },
+    { gameName: 'Nuke De Kat',       tagLine: 'NDK',   platform: 'br1', isDefault: true },
+    { gameName: 'TDAH QwSaE',        tagLine: 'AGUA',  platform: 'br1', isDefault: true },
+    { gameName: 'TDAH OnlyEmotes',   tagLine: 'TDHA',  platform: 'br1', isDefault: true },
+  ];
+
   // ---- Persistência de amigos ----
   function loadFriends() {
-    try { return JSON.parse(localStorage.getItem(RANKING_LS_FRIENDS) || '[]'); }
-    catch { return []; }
+    try {
+      const raw = localStorage.getItem(RANKING_LS_FRIENDS);
+      // Primeira visita: injeta os defaults e salva
+      if (raw === null) {
+        saveFriends(DEFAULT_FRIENDS);
+        return DEFAULT_FRIENDS;
+      }
+      return JSON.parse(raw);
+    } catch { return DEFAULT_FRIENDS; }
   }
   function saveFriends(list) {
     localStorage.setItem(RANKING_LS_FRIENDS, JSON.stringify(list));
@@ -630,11 +645,12 @@
       return;
     }
     rdFriendList.innerHTML = friends.map((f, i) => `
-      <li class="rd__friend-item" data-idx="${i}">
+      <li class="rd__friend-item${f.isDefault ? ' rd__friend-item--default' : ''}" data-idx="${i}">
         <span>
           <span class="rd__friend-name">${esc(f.gameName)}</span>
           <span class="rd__friend-tag">${f.tagLine ? '#' + esc(f.tagLine) : ''}</span>
           <span class="rd__friend-region">${esc(f.platform.toUpperCase())}</span>
+          ${f.isDefault ? '<span class="rd__friend-default-badge">padrão</span>' : ''}
         </span>
         <button class="rd__friend-remove" data-idx="${i}" aria-label="Remover ${esc(f.gameName)}">×</button>
       </li>
