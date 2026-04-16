@@ -162,7 +162,9 @@ export default async function handler(req, res) {
       if (me.placement === undefined || me.placement === null) {
         console.warn(`[TDAH] placement ausente — matchId:${match.metadata.matchId} champ:${me.championName} win:${won}`);
       }
-      const placement = me.placement ?? (won ? 2 : 4); // Arena: máximo é 4, nunca 5
+      // Arena: máximo real é 4. Riot às vezes retorna 5 por bug — clampamos.
+      const rawPlacement = me.placement ?? (won ? 2 : 4);
+      const placement = Math.min(rawPlacement, 4);
       const gameDate  = info.gameStartTimestamp;
       const duration  = info.gameDuration; // segundos
 

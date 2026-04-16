@@ -11,7 +11,6 @@
   let filterText       = '';
   let showOnlyFirst    = true;    // apenas 1º lugar (padrão ativo)
   let showUnplayed     = false;   // campeões ainda não jogados
-  let periodMode       = 'split'; // 'split' = split inteiro | 'patch' = patch atual
   let allChampionIds   = [];      // todos os champs do DDragon
 
   // ---- DOM ----
@@ -27,8 +26,7 @@
   const filterInput    = document.getElementById('filter-input');
   const sortSelect     = document.getElementById('sort-select');
   const firstToggle    = document.getElementById('first-toggle');
-  const unplayedToggle = document.getElementById('unplayed-toggle');  // NOVO
-  const periodToggle   = document.getElementById('period-toggle');    // Split / Patch
+  const unplayedToggle = document.getElementById('unplayed-toggle');
   const statGames      = document.getElementById('stat-games');
   const statWins       = document.getElementById('stat-wins');
   const statWinrate    = document.getElementById('stat-winrate');
@@ -102,12 +100,12 @@
     return champStats;
   }
 
-  // ---- Retorna o timestamp do início do período ativo (split ou patch atual) ----
+  // ---- Sempre filtra pelo patch atual ----
   function getActivePeriodTimestamp() {
-    return periodMode === 'patch' ? getCurrentPatchTimestamp() : getPatchStartTimestamp();
+    return getCurrentPatchTimestamp();
   }
 
-  // ---- Retorna os campeões ativos (respeitando filtro de patch) ----
+  // ---- Retorna os campeões ativos (apenas patch atual) ----
   function getActiveChampions() {
     if (!currentData) return {};
     // Sempre recalcula no client para garantir firstPlaceWins disponível
@@ -436,21 +434,6 @@
     }
     renderGrid();
   });
-
-  // Toggle Split / Patch atual
-  periodToggle?.addEventListener('click', () => {
-    periodMode = periodMode === 'split' ? 'patch' : 'split';
-    const isPatch = periodMode === 'patch';
-    periodToggle.classList.toggle('active', isPatch);
-    periodToggle.setAttribute('aria-pressed', isPatch.toString());
-    periodToggle.title = isPatch
-      ? 'Mostrando apenas o patch atual (≈ 2 semanas). Clique para ver o split inteiro.'
-      : 'Mostrando o split inteiro (≈ 4 meses). Clique para ver apenas o patch atual.';
-    updateStats();
-    renderGrid();
-  });
-
-
 
   // ---- Helpers visuais ----
   function setLoading(on) {
