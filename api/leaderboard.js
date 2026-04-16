@@ -161,7 +161,8 @@ async function fetchPlayerSummary(gameName, tagLine, platform, apiKey) {
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
-    return res.status(200).set(CORS_HEADERS).end();
+    Object.entries(CORS_HEADERS).forEach(([k, v]) => res.setHeader(k, v));
+    return res.status(200).end();
   }
   Object.entries(CORS_HEADERS).forEach(([k, v]) => res.setHeader(k, v));
 
@@ -175,12 +176,8 @@ export default async function handler(req, res) {
   }
 
   // Body: { players: [{ gameName, tagLine, platform }] }
-  let players;
-  try {
-    players = req.body?.players;
-  } catch {
-    return res.status(400).json({ error: 'Body inválido.' });
-  }
+  // req.body já é parsed pelo Vercel (Content-Type: application/json)
+  const players = req.body?.players;
 
   if (!Array.isArray(players) || players.length === 0) {
     return res.status(400).json({ error: 'Lista de jogadores vazia ou inválida.' });
@@ -188,6 +185,13 @@ export default async function handler(req, res) {
 
   if (players.length > 20) {
     return res.status(400).json({ error: 'Máximo de 20 jogadores por vez.' });
+  }
+
+  // Valida cada objeto individualmente — evita 500 por campos ausentes
+  for (const p of players) {
+    if (!p || typeof p.gameName !== 'string' || !p.gameName.trim()) {
+      return res.status(400).json({ error: 'Campo gameName inválido ou ausente em um dos jogadores.' });
+    }
   }
 
   // Busca jogadores com stagger de 200ms entre cada um para não estourar o rate limit

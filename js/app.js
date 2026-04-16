@@ -598,7 +598,7 @@
   // ---- Adicionar amigo ----
   function addFriendFromInput() {
     const raw = rdAddInput?.value.trim();
-    if (!raw) return rdAddInput?.classList.add('shake');
+    if (!raw) { shake(rdAddInput); return; }
     const region = rdAddRegion?.value || 'br1';
 
     // Aceita "Nome#TAG" ou "Nome TAG" ou só "Nome" (sem tag)
@@ -612,7 +612,6 @@
     if (!gameName) return shake(rdAddInput);
 
     const friends = loadFriends();
-    const key = `${gameName.toLowerCase()}#${tagLine.toLowerCase()}#${region}`;
     const alreadyExists = friends.some(f =>
       f.gameName.toLowerCase() === gameName.toLowerCase() &&
       f.tagLine.toLowerCase() === (tagLine || '').toLowerCase() &&
@@ -743,7 +742,7 @@
           <div class="rd__rank ${rankCls}">${rankLabel}</div>
           <div class="rd__player">
             <div class="rd__player-name">${esc(player.gameName)}</div>
-            <div class="rd__player-tag">${tagDisplay} · ${esc(player.platform.toUpperCase())}</div>
+            <div class="rd__player-tag">${tagDisplay} · ${esc(player.platform.toUpperCase().replace(/\d+$/, ''))}</div>
           </div>
           <div class="rd__stats">
             <div class="rd__champs">${player.uniqueChampionsWon} <span>únicos</span></div>
@@ -783,8 +782,18 @@
         // Preenche o formulário principal
         if (inputName) inputName.value = name;
         if (inputTag)  inputTag.value  = tag;
-        const regionOpt = inputRegion?.querySelector(`option[value="${platform}"]`);
-        if (regionOpt) inputRegion.value = platform;
+        // Garante que a opção existe no select antes de setar;
+        // se não existir (ex: região não-BR num select de região única), cria dinamicamente
+        if (inputRegion) {
+          let opt = inputRegion.querySelector(`option[value="${platform}"]`);
+          if (!opt) {
+            opt = document.createElement('option');
+            opt.value = platform;
+            opt.textContent = platform.toUpperCase().replace(/\d+$/, '');
+            inputRegion.appendChild(opt);
+          }
+          inputRegion.value = platform;
+        }
 
         // Fecha dropdown
         closeRankingDropdown();
