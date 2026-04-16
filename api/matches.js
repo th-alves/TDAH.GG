@@ -105,9 +105,9 @@ export default async function handler(req, res) {
   const regional   = PLATFORM_TO_REGIONAL[platform.toLowerCase()] || 'americas';
   const matchCount = Math.min(Math.max(parseInt(count, 10) || 100, 1), 100);
 
-  // startTime removido: a Riot API ignora o count quando startTime está presente,
-  // retornando apenas ~20 jogos do patch. O filtro de patch é client-side.
-  const startTimeParam = '';
+  // startTime = início do Patch 26.1 (8 jan 2026, Unix em segundos).
+  // A Riot API aceita startTime + count juntos normalmente.
+  const SPLIT1_START_EPOCH_S = 1736294400; // 2026-01-08T00:00:00Z
 
   try {
     // 1. PUUID via Riot ID
@@ -117,10 +117,9 @@ export default async function handler(req, res) {
     );
     const { puuid } = account;
 
-    // 2. IDs das partidas de Arena (queue 1700)
-    // Com startTime → retorna apenas matches do patch atual (~15-25), bem mais rápido
+    // 2. IDs das partidas de Arena (queue 1700) desde o início do split 26.1
     const matchIds = await riotFetch(
-      `https://${regional}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=1700&count=${matchCount}${startTimeParam}`,
+      `https://${regional}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=1700&count=${matchCount}&startTime=${SPLIT1_START_EPOCH_S}`,
       apiKey
     );
 
@@ -150,21 +149,22 @@ export default async function handler(req, res) {
       const match = result.value;
       const info  = match.info;
 
+      // Filtra apenas partidas do split atual (gameVersion começa com "26.")
+      const gameVersion = info.gameVersion || '';
+      if (!gameVersion.startsWith('26.')) continue;
+
       // Encontra o participante do usuário
       const me = info.participants.find(p => p.puuid === puuid);
       if (!me) continue;
 
-      const champId   = me.championName;
-      const won = me.win === true;
-      // me.placement é sempre enviado pela Riot API no Arena, mas se vier
-      // indefinido, NÃO assumimos 1º lugar — win=true no Arena significa top 2.
-      // Usamos 2 como fallback conservador para não inflar contagem de 1º lugar.
-      if (me.placement === undefined || me.placement === null) {
-        console.warn(`[TDAH] placement ausente — matchId:${match.metadata.matchId} champ:${me.championName} win:${won}`);
-      }
+      const champId = me.championName;
+
+      // Arena: vitória = 1º lugar exclusivamente (placement === 1).
+      // me.win retorna true para top 2 — não usamos.
       // Arena: máximo real é 4. Riot às vezes retorna 5 por bug — clampamos.
-      const rawPlacement = me.placement ?? (won ? 2 : 4);
-      const placement = Math.min(rawPlacement, 4);
+      const rawPlacement = me.placement ?? 4;
+      const placement    = Math.min(rawPlacement, 4);
+      const won          = placement === 1;
       const gameDate  = info.gameStartTimestamp;
       const duration  = info.gameDuration; // segundos
 
