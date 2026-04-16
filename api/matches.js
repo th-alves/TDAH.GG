@@ -162,7 +162,7 @@ export default async function handler(req, res) {
       if (me.placement === undefined || me.placement === null) {
         console.warn(`[TDAH] placement ausente — matchId:${match.metadata.matchId} champ:${me.championName} win:${won}`);
       }
-      const placement = me.placement ?? (won ? 2 : 5);
+      const placement = me.placement ?? (won ? 2 : 4); // Arena: máximo é 4, nunca 5
       const gameDate  = info.gameStartTimestamp;
       const duration  = info.gameDuration; // segundos
 
