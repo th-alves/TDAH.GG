@@ -100,12 +100,12 @@
     return champStats;
   }
 
-  // ---- Usa o início do split atual (comportamento original, funciona corretamente) ----
+  // ---- Filtra pelo patch atual (últimas 2 semanas) ----
   function getActivePeriodTimestamp() {
-    return getPatchStartTimestamp();
+    return getCurrentPatchTimestamp();
   }
 
-  // ---- Retorna os campeões ativos (patch do split atual) ----
+  // ---- Retorna os campeões ativos (apenas patch atual) ----
   function getActiveChampions() {
     if (!currentData) return {};
     // Sempre recalcula no client para garantir firstPlaceWins disponível

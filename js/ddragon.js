@@ -89,22 +89,11 @@ function getPatchStartTimestamp() {
   }
 }
 
-// Retorna o timestamp de início do PATCH atual (não do split inteiro).
-// Útil para replicar o comportamento padrão do op.gg (últimas ~2 semanas).
+// Retorna o timestamp de início do patch atual.
+// Usa 14 dias atrás como janela fixa — mais confiável que calcular pela versão,
+// pois evita o problema de "patch acabou de virar e ninguém jogou ainda hoje".
 function getCurrentPatchTimestamp() {
-  try {
-    const parts    = DD_VERSION.split('.');
-    const major    = parseInt(parts[0], 10);
-    const patchNum = parseInt(parts[1], 10);
-    const year     = major < 20 ? major + 2010 : major + 2000;
-
-    // Início da temporada (8 de janeiro) + (patchNum - 1) × 14 dias
-    const seasonStart = new Date(year, 0, 8);
-    return seasonStart.getTime() + (patchNum - 1) * 14 * 24 * 60 * 60 * 1000;
-  } catch {
-    // Fallback: 14 dias atrás (≈ 1 patch)
-    return Date.now() - 14 * 24 * 60 * 60 * 1000;
-  }
+  return Date.now() - 14 * 24 * 60 * 60 * 1000;
 }
 
 // Retorna o número do split atual: 1, 2 ou 3
