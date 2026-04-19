@@ -1,1371 +1,872 @@
-/* =============================================================================
-   TDAH.GG — Riot Import · Cyberpunk Neon
-   Rajdhani (display) + Barlow (body) + JetBrains Mono (stats)
-   ============================================================================= */
-
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
-
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-/* ---- Tokens ---- */
-:root {
-  --black:    #03030a;
-  --deep:     #07071a;
-  --surface:  #0d0d24;
-  --card:     #10102c;
-  --card-hi:  #14143a;
-
-  --violet:   #6c63ff;
-  --violet-d: #4f48c4;
-  --cyan:     #00d4ff;
-  --pink:     #ff2d78;
-  --green:    #00f5a0;
-  --gold:     #ffc830;
-
-  --text:     #eeeeff;
-  --text-2:   #9090bb;
-  --text-3:   #4a4a70;
-
-  --border:   rgba(108,99,255,0.2);
-  --border-hi:rgba(108,99,255,0.5);
-
-  --glow-v:   0 0 24px rgba(108,99,255,0.4);
-  --glow-c:   0 0 24px rgba(0,212,255,0.4);
-  --glow-p:   0 0 24px rgba(255,45,120,0.4);
-
-  --font-d:   'Rajdhani', sans-serif;
-  --font-b:   'Barlow', sans-serif;
-  --font-m:   'JetBrains Mono', monospace;
-
-  --ease:     cubic-bezier(0.4, 0, 0.2, 1);
-  --spring:   cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* ---- Base ---- */
-html { font-size: 16px; scroll-behavior: smooth; }
-
-body {
-  font-family: var(--font-b);
-  background: var(--black);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* ---- Background grid ---- */
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background-image:
-    linear-gradient(rgba(108,99,255,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(108,99,255,0.04) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-body::after {
-  content: '';
-  position: fixed; inset: 0;
-  background:
-    radial-gradient(ellipse at 15% 40%, rgba(108,99,255,0.06) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 20%, rgba(0,212,255,0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 90%, rgba(255,45,120,0.03) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* ---- Orbs de luz animados ---- */
-.bg-orbs {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  will-change: transform;
-  transform: translateZ(0); /* força camada dedicada na GPU */
-}
-
-.orb--violet-1 {
-  width: 700px; height: 700px;
-  background: radial-gradient(circle, rgba(108,99,255,0.22) 0%, rgba(108,99,255,0.08) 40%, transparent 70%);
-  top: -200px; left: -180px;
-  animation: orbFloat1 22s ease-in-out infinite;
-}
-
-.orb--cyan {
-  width: 550px; height: 550px;
-  background: radial-gradient(circle, rgba(0,212,255,0.18) 0%, rgba(0,212,255,0.06) 40%, transparent 70%);
-  top: 25%; right: -140px;
-  animation: orbFloat2 28s ease-in-out infinite;
-}
-
-.orb--pink {
-  width: 460px; height: 460px;
-  background: radial-gradient(circle, rgba(255,45,120,0.16) 0%, rgba(255,45,120,0.05) 40%, transparent 70%);
-  bottom: -120px; left: 25%;
-  animation: orbFloat3 19s ease-in-out infinite;
-}
-
-.orb--violet-2 {
-  width: 400px; height: 400px;
-  background: radial-gradient(circle, rgba(108,99,255,0.14) 0%, rgba(108,99,255,0.04) 40%, transparent 70%);
-  bottom: 15%; right: 10%;
-  animation: orbFloat4 24s ease-in-out infinite;
-}
-
-.orb--green {
-  width: 340px; height: 340px;
-  background: radial-gradient(circle, rgba(0,245,160,0.1) 0%, rgba(0,245,160,0.03) 40%, transparent 70%);
-  top: 55%; left: 40%;
-  animation: orbFloat5 32s ease-in-out infinite;
-}
-
-@keyframes orbFloat1 {
-  0%,100% { transform: translate(0px,   0px); }
-  25%     { transform: translate(130px, 90px); }
-  50%     { transform: translate(60px,  200px); }
-  75%     { transform: translate(-70px, 110px); }
-}
-
-@keyframes orbFloat2 {
-  0%,100% { transform: translate(0px,   0px); }
-  25%     { transform: translate(-100px, 120px); }
-  50%     { transform: translate(-60px, -90px); }
-  75%     { transform: translate(-180px, 60px); }
-}
-
-@keyframes orbFloat3 {
-  0%,100% { transform: translate(0px,   0px); }
-  33%     { transform: translate(-140px, -80px); }
-  66%     { transform: translate(100px,  -130px); }
-}
-
-@keyframes orbFloat4 {
-  0%,100% { transform: translate(0px,  0px); }
-  30%     { transform: translate(-90px, -100px); }
-  60%     { transform: translate(80px,  -60px); }
-}
-
-@keyframes orbFloat5 {
-  0%,100% { transform: translate(0px,  0px); }
-  20%     { transform: translate(120px, -80px); }
-  40%     { transform: translate(-100px,-120px); }
-  60%     { transform: translate(-80px,  90px); }
-  80%     { transform: translate(90px,   60px); }
-}
-
-.app { position: relative; z-index: 1; }
-
-/* ---- Nav ---- */
-.nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 48px;
-  background: rgba(3,3,10,0.7);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-}
-
-.nav__logo {
-  font-family: var(--font-d);
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--text);
-  text-decoration: none;
-  display: flex; align-items: center; gap: 8px;
-}
-
-.nav__logo span {
-  background: linear-gradient(135deg, var(--violet), var(--cyan));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.nav__badge {
-  font-family: var(--font-m);
-  font-size: 0.65rem;
-  padding: 3px 10px;
-  border-radius: 100px;
-  border: 1px solid var(--border-hi);
-  color: var(--violet);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-/* ---- Hero ---- */
-.hero {
-  min-height: 100vh;
-  display: flex; align-items: center; justify-content: center;
-  padding: 120px 24px 80px;
-  position: relative;
-}
-
-.hero__inner {
-  width: 100%;
-  max-width: 640px;
-  text-align: center;
-}
-
-
-.hero__title {
-  font-family: var(--font-d);
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: 24px;
-  opacity: 0;
-  animation: fadeUp 0.6s var(--spring) 0.2s forwards;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* TDAH.GG — estilo principal */
-.hero-brand {
-  font-size: clamp(3.5rem, 10vw, 7.5rem);
-  font-weight: 700;
-  letter-spacing: -2px;
-  color: var(--text);
-  line-height: 1;
-}
-
-.hero-brand__gg {
-  background: linear-gradient(135deg, var(--violet), var(--cyan));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: none;
-  filter: drop-shadow(0 0 20px rgba(108,99,255,0.5));
-}
-
-.hero__title .t-white  { color: var(--text); }
-.hero__title .t-violet { color: var(--violet); text-shadow: var(--glow-v); }
-.hero__title .t-cyan   { color: var(--cyan);   text-shadow: var(--glow-c); }
-
-.hero__sub {
-  font-size: 1rem;
-  color: var(--text-2);
-  line-height: 1.6;
-  max-width: 420px;
-  margin: 0 auto 48px;
-  font-weight: 300;
-  opacity: 0;
-  animation: fadeUp 0.6s var(--spring) 0.3s forwards;
-}
-
-/* ---- Search Card ---- */
-.search-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 32px;
-  box-shadow: 0 0 60px rgba(108,99,255,0.08), inset 0 1px 0 rgba(255,255,255,0.04);
-  opacity: 0;
-  animation: fadeUp 0.6s var(--spring) 0.4s forwards;
-  position: relative;
-  overflow: hidden;
-}
-
-.search-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 20%; right: 20%; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--violet), transparent);
-}
-
-.input-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.input-name-wrap {
-  display: flex;
-  background: var(--deep);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-  transition: border-color 0.2s;
-}
-
-.input-name-wrap:focus-within {
-  border-color: var(--violet);
-  box-shadow: 0 0 0 3px rgba(108,99,255,0.12);
-}
-
-.input-name {
-  flex: 1;
-  background: none;
-  border: none;
-  outline: none;
-  color: var(--text);
-  font-family: var(--font-b);
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 14px 16px;
-}
-
-.input-name::placeholder { color: var(--text-3); }
-
-.input-separator {
-  display: flex; align-items: center;
-  color: var(--text-3);
-  font-family: var(--font-m);
-  font-size: 1.1rem;
-  padding: 0 4px;
-  user-select: none;
-}
-
-.input-tag {
-  background: none;
-  border: none;
-  outline: none;
-  color: var(--cyan);
-  font-family: var(--font-m);
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 14px 16px 14px 0;
-  width: 90px;
-}
-
-.input-tag::placeholder { color: var(--text-3); }
-
-.input-region {
-  background: var(--deep);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  color: var(--text);
-  font-family: var(--font-m);
-  font-size: 0.78rem;
-  padding: 0 36px 0 14px;
-  cursor: pointer;
-  outline: none;
-  transition: border-color 0.2s;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236c63ff' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  min-width: 130px;
-  max-width: 170px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  height: 50px;
-}
-
-.input-region:focus { border-color: var(--violet); }
-.input-region option { background: #0d0d24; }
-
-.options-row {
-  display: flex; align-items: center; gap: 12px;
-  margin-bottom: 20px;
-}
-
-.count-select {
-  background: var(--deep);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text-2);
-  font-family: var(--font-m);
-  font-size: 0.78rem;
-  padding: 8px 12px;
-  cursor: pointer;
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-}
-.count-select option { background: #0d0d24; }
-
-.count-label {
-  font-size: 0.78rem;
-  color: var(--text-3);
-  font-family: var(--font-m);
-}
-
-/* ---- Submit Button ---- */
-.btn-search {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, var(--violet), var(--cyan) 180%);
-  border: none;
-  border-radius: 12px;
-  color: #fff;
-  font-family: var(--font-d);
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: opacity 0.2s, transform 0.15s var(--spring), box-shadow 0.2s;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-search::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.btn-search:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(108,99,255,0.5);
-}
-.btn-search:hover::after { opacity: 1; }
-.btn-search:active:not(:disabled) { transform: translateY(0); }
-.btn-search:disabled { opacity: 0.6; cursor: not-allowed; }
-.btn-search.loading { animation: pulse 1s ease-in-out infinite; }
-
-@keyframes pulse {
-  0%,100% { opacity: 0.7; }
-  50%      { opacity: 1; }
-}
-
-/* ---- Error Box ---- */
-.error-box {
-  margin-top: 16px;
-  padding: 12px 16px;
-  background: rgba(255,45,120,0.1);
-  border: 1px solid rgba(255,45,120,0.4);
-  border-radius: 10px;
-  color: #ff7aaa;
-  font-size: 0.85rem;
-  font-family: var(--font-m);
-  text-align: center;
-}
-
-/* ---- Loading ---- */
-.loading-box {
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
-  padding: 20px;
-}
-
-.loading-terminal {
-  font-family: var(--font-m);
-  font-size: 0.75rem;
-  color: var(--green);
-  letter-spacing: 1px;
-  text-align: left;
-  width: 100%;
-}
-
-.loading-terminal p { margin: 2px 0; opacity: 0; animation: termLine 0.4s ease forwards; }
-.loading-terminal p:nth-child(1) { animation-delay: 0.0s; }
-.loading-terminal p:nth-child(2) { animation-delay: 0.5s; }
-.loading-terminal p:nth-child(3) { animation-delay: 1.0s; }
-.loading-terminal p:nth-child(4) { animation-delay: 1.5s; }
-
-@keyframes termLine {
-  from { opacity: 0; transform: translateX(-8px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-.loading-bar {
-  width: 100%; height: 2px;
-  background: var(--border);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.loading-bar__fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--violet), var(--cyan));
-  animation: loadBar 2s ease-in-out infinite;
-}
-
-@keyframes loadBar {
-  0%   { width: 0%;   margin-left: 0; }
-  50%  { width: 60%;  margin-left: 20%; }
-  100% { width: 0%;   margin-left: 100%; }
-}
-
-/* ---- Results Section ---- */
-.results {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 24px 80px;
-}
-
-/* ---- Player Badge ---- */
-.player-header {
-  display: flex; align-items: center; justify-content: space-between;
-  flex-wrap: wrap; gap: 16px;
-  margin-bottom: 32px;
-}
-
-.player-badge {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--surface);
-  border: 1px solid var(--border-hi);
-  border-radius: 100px;
-  padding: 8px 20px;
-  box-shadow: var(--glow-v);
-}
-
-.badge-name {
-  font-family: var(--font-d);
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.badge-tag {
-  font-family: var(--font-m);
-  font-size: 0.8rem;
-  color: var(--cyan);
-}
-
-.badge-region {
-  font-family: var(--font-m);
-  font-size: 0.65rem;
-  padding: 2px 8px;
-  background: rgba(108,99,255,0.2);
-  border-radius: 100px;
-  color: var(--violet);
-  letter-spacing: 1px;
-}
-
-/* ---- Stats Bar ---- */
-.stats-bar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px 24px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.2s, transform 0.2s var(--spring);
-}
-
-.stat-card:hover {
-  border-color: var(--border-hi);
-  transform: translateY(-2px);
-}
-
-.stat-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  opacity: 0; transition: opacity 0.2s;
-}
-.stat-card:nth-child(1)::before { background: var(--violet); }
-.stat-card:nth-child(2)::before { background: var(--green); }
-.stat-card:nth-child(3)::before { background: var(--cyan); }
-.stat-card:nth-child(4)::before { background: var(--gold); }
-.stat-card:hover::before { opacity: 1; }
-
-.stat-card__value {
-  font-family: var(--font-d);
-  font-size: 2.2rem;
-  font-weight: 700;
-  line-height: 1;
-  margin-bottom: 6px;
-}
-.stat-card:nth-child(1) .stat-card__value { color: var(--violet); }
-.stat-card:nth-child(2) .stat-card__value { color: var(--green); }
-.stat-card:nth-child(3) .stat-card__value { color: var(--cyan); }
-.stat-card:nth-child(4) .stat-card__value { color: var(--gold); }
-
-.stat-card__label {
-  font-size: 0.72rem;
-  color: var(--text-3);
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  font-family: var(--font-m);
-}
-
-/* ---- Controls ---- */
-.controls-row {
-  display: flex; align-items: center; gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 24px;
-}
-
-.ctrl-input-wrap {
-  flex: 1;
-  min-width: 180px;
-  position: relative;
-}
-
-.ctrl-icon {
-  position: absolute; left: 12px; top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-3);
-  font-size: 0.85rem;
-  pointer-events: none;
-}
-
-.ctrl-input {
-  width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text);
-  font-family: var(--font-b);
-  font-size: 0.9rem;
-  padding: 10px 14px 10px 34px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.ctrl-input:focus { border-color: var(--violet); }
-.ctrl-input::placeholder { color: var(--text-3); }
-
-.ctrl-select {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text-2);
-  font-family: var(--font-m);
-  font-size: 0.78rem;
-  padding: 10px 32px 10px 14px;
-  cursor: pointer;
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236c63ff' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  transition: border-color 0.2s;
-}
-.ctrl-select:focus { border-color: var(--violet); }
-.ctrl-select option { background: #0d0d24; }
-
-.ctrl-toggle {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text-2);
-  font-family: var(--font-m);
-  font-size: 0.78rem;
-  padding: 10px 16px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-  letter-spacing: 0.5px;
-}
-
-.ctrl-toggle:hover { border-color: var(--border-hi); color: var(--text); }
-.ctrl-toggle.active {
-  background: rgba(0,245,160,0.12);
-  border-color: rgba(0,245,160,0.5);
-  color: var(--green);
-}
-
-/* Toggle "Patch atual" — ativo em violeta */
-.ctrl-toggle.active-patch {
-  background: rgba(108,99,255,0.15);
-  border-color: rgba(108,99,255,0.55);
-  color: var(--violet);
-  text-shadow: 0 0 8px rgba(108,99,255,0.4);
-}
-
-/* Toggle "Não jogados" — ativo em ciano */
-.ctrl-toggle.active-unplayed {
-  background: rgba(0,212,255,0.12);
-  border-color: rgba(0,212,255,0.5);
-  color: var(--cyan);
-  text-shadow: 0 0 8px rgba(0,212,255,0.35);
-}
-
-/* ---- Card: campeão não jogado ---- */
-.champ-card--unplayed {
-  opacity: 0.45;
-  border-color: var(--border);
-  transition: opacity 0.2s, border-color 0.2s, transform 0.2s var(--spring), box-shadow 0.2s;
-}
-
-.champ-card--unplayed:hover {
-  opacity: 0.8;
-  border-color: rgba(0,212,255,0.35);
-  transform: translateY(-3px);
-  box-shadow: 0 0 18px rgba(0,212,255,0.15), 0 10px 30px rgba(0,0,0,0.3);
-}
-
-.champ-card--unplayed .champ-card__img {
-  filter: grayscale(0.85) brightness(0.6) saturate(0.3);
-}
-
-.champ-card--unplayed:hover .champ-card__img {
-  filter: grayscale(0.3) brightness(0.75) saturate(0.7);
-}
-
-.champ-card__unplayed-badge {
-  position: absolute; top: 8px; left: 8px;
-  font-size: 0.85rem;
-  opacity: 0.7;
-}
-
-.rec-unplayed {
-  color: var(--text-3);
-  font-style: italic;
-  font-size: 0.68rem;
-}
-
-/* ---- Champion Grid ---- */
-.champ-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
-}
-
-/* ---- Champion Card ---- */
-.champ-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-  cursor: default;
-  position: relative;
-  transition: border-color 0.2s, transform 0.2s var(--spring), box-shadow 0.2s;
-  animation: cardIn 0.4s var(--spring) both;
-  contain: layout paint style;
-}
-
-@keyframes cardIn {
-  from { opacity: 0; transform: translateY(16px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.champ-card:hover {
-  border-color: var(--border-hi);
-  transform: translateY(-4px);
-  box-shadow: var(--glow-v), 0 12px 40px rgba(0,0,0,0.4);
-}
-
-.champ-card.has-wins {
-  border-color: rgba(0,245,160,0.25);
-}
-
-.champ-card.has-wins:hover {
-  border-color: rgba(0,245,160,0.6);
-  box-shadow: 0 0 24px rgba(0,245,160,0.2), 0 12px 40px rgba(0,0,0,0.4);
-}
-
-.champ-card__glow {
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 50% 0%, rgba(108,99,255,0.12) 0%, transparent 70%);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-.champ-card:hover .champ-card__glow { opacity: 1; }
-
-.champ-card__img-wrap {
-  position: relative;
-  aspect-ratio: 1;
-  overflow: hidden;
-  background: var(--deep);
-}
-
-.champ-card__img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  object-position: top center;
-  transition: transform 0.4s var(--ease), filter 0.3s;
-  filter: saturate(0.75) brightness(0.85);
-  will-change: transform;
-}
-
-.champ-card:hover .champ-card__img {
-  transform: scale(1.08);
-  filter: saturate(1.1) brightness(0.95);
-}
-
-.champ-card__img-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(7,7,26,0.9) 0%, rgba(7,7,26,0.2) 50%, transparent 100%);
-}
-
-.champ-card__games-badge {
-  position: absolute; top: 8px; right: 8px;
-  background: rgba(3,3,10,0.8);
-  border: 1px solid var(--border);
-  border-radius: 100px;
-  font-family: var(--font-m);
-  font-size: 0.62rem;
-  font-weight: 600;
-  color: var(--text-2);
-  padding: 2px 8px;
-  backdrop-filter: blur(4px);
-}
-
-.champ-card__win-crown {
-  position: absolute; top: 8px; left: 8px;
-  font-size: 1rem;
-  filter: drop-shadow(0 0 6px rgba(0,245,160,0.6));
-  animation: crownPop 0.4s var(--spring) both;
-}
-@keyframes crownPop {
-  from { transform: scale(0) rotate(-20deg); }
-  to   { transform: scale(1) rotate(0deg); }
-}
-
-.champ-card__body {
-  padding: 12px 14px 14px;
-}
-
-.champ-card__name {
-  font-family: var(--font-d);
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.champ-card__record {
-  display: flex; align-items: center; gap: 5px;
-  font-family: var(--font-m);
-  font-size: 0.72rem;
-  margin-bottom: 8px;
-}
-
-.rec-w   { color: var(--green); font-weight: 600; }
-.rec-l   { color: #ff6b6b; }
-.rec-sep { color: var(--text-3); }
-.rec-wr  { margin-left: auto; font-weight: 600; font-size: 0.78rem; }
-
-.wr-high { color: var(--green); }
-.wr-mid  { color: var(--cyan); }
-.wr-low  { color: #ff6b6b; }
-
-.champ-card__bar-wrap {
-  height: 3px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.champ-card__bar {
-  height: 100%;
-  border-radius: 2px;
-  background: linear-gradient(90deg, var(--violet), var(--cyan));
-  transition: width 0.8s var(--spring);
-  min-width: 2px;
-}
-
-.champ-card__bar[data-wr="0"] { background: #ff6b6b; }
-
-.champ-card__meta {
-  display: flex; align-items: center; justify-content: space-between;
-  font-family: var(--font-m);
-  font-size: 0.62rem;
-  color: var(--text-3);
-}
-
-.meta-placement { color: var(--text-2); }
-
-/* ---- Empty State ---- */
-.empty-state {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 60px 20px;
-}
-.empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
-.empty-text { color: var(--text-3); font-size: 0.9rem; font-family: var(--font-m); }
-
-/* ---- Utility ---- */
-.hidden { display: none !important; }
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes shake {
-  0%,100% { transform: translateX(0); }
-  20%,60% { transform: translateX(-6px); }
-  40%,80% { transform: translateX(6px); }
-}
-.shake { animation: shake 0.4s ease; }
-
-/* ---- Footer ---- */
-.footer {
-  text-align: center;
-  padding: 24px;
-  color: var(--text-3);
-  font-size: 0.75rem;
-  font-family: var(--font-m);
-  border-top: 1px solid var(--border);
-}
-.footer a { color: var(--violet); text-decoration: none; }
-.footer a:hover { color: var(--cyan); }
-
-/* ---- Responsive ---- */
-@media (max-width: 768px) {
-  .nav { padding: 14px 20px; }
-  .hero { padding: 100px 16px 60px; }
-  .search-card { padding: 20px; }
-  .input-row { grid-template-columns: 1fr; }
-  .stats-bar { grid-template-columns: repeat(2, 1fr); }
-  .champ-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
-  .results { padding: 24px 16px 60px; }
-}
-
-@media (max-width: 480px) {
-  .hero__title { font-size: 2.8rem; }
-  .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .stat-card { padding: 14px 16px; }
-  .stat-card__value { font-size: 1.6rem; }
-  .player-header { flex-direction: column; align-items: flex-start; }
-}
-
-/* =============================================================================
-   RANKING DROPDOWN
-   ============================================================================= */
-
-/* Nav ajustado para ter o right group */
-.nav__right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-/* Botão no nav */
-.ranking-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  font-family: var(--font-d);
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--text);
-  background: rgba(108,99,255,0.12);
-  border: 1px solid var(--border-hi);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s var(--ease), border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
-}
-.ranking-btn:hover {
-  background: rgba(108,99,255,0.22);
-  border-color: var(--violet);
-  box-shadow: var(--glow-v);
-}
-.ranking-btn.is-open {
-  background: rgba(108,99,255,0.28);
-  border-color: var(--violet);
-  box-shadow: var(--glow-v);
-}
-.ranking-btn__icon {
-  width: 14px;
-  height: 14px;
-  color: var(--violet);
-  flex-shrink: 0;
-}
-
-/* Container relativo para o dropdown */
-.ranking-wrap {
-  position: relative;
-}
-
-/* Dropdown panel */
-.ranking-dropdown {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  width: 360px;
-  background: var(--surface);
-  border: 1px solid var(--border-hi);
-  border-radius: 14px;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.6), var(--glow-v);
-  z-index: 200;
-  overflow: hidden;
-  animation: rdSlideIn 0.22s var(--spring) both;
-}
-@keyframes rdSlideIn {
-  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-.ranking-dropdown[hidden] { display: none; }
-
-/* Header */
-.rd__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px 12px;
-  border-bottom: 1px solid var(--border);
-}
-.rd__title {
-  font-family: var(--font-d);
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--text);
-}
-.rd__gear {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text-2);
-  cursor: pointer;
-  transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.3s var(--ease);
-}
-.rd__gear svg { width: 15px; height: 15px; }
-.rd__gear:hover { background: rgba(108,99,255,0.15); color: var(--violet); border-color: var(--violet); }
-.rd__gear.is-active { color: var(--cyan); border-color: var(--cyan); transform: rotate(60deg); }
-
-/* Gerenciar amigos */
-.rd__manage {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(255,255,255,0.02);
-}
-.rd__manage[hidden] { display: none; }
-.rd__manage-hint {
-  font-size: 0.72rem;
-  color: var(--text-2);
-  margin-bottom: 8px;
-}
-.rd__manage-hint code {
-  font-family: var(--font-m);
-  color: var(--cyan);
-  background: rgba(0,212,255,0.08);
-  padding: 1px 5px;
-  border-radius: 4px;
-}
-.rd__add-row {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-.rd__add-input {
-  flex: 1;
-  padding: 7px 10px;
-  font-family: var(--font-m);
-  font-size: 0.78rem;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text);
-  outline: none;
-  transition: border-color 0.18s;
-}
-.rd__add-input::placeholder { color: var(--text-3); }
-.rd__add-input:focus { border-color: var(--violet); }
-.rd__add-region {
-  padding: 7px 8px;
-  font-family: var(--font-m);
-  font-size: 0.75rem;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text-2);
-  cursor: pointer;
-  outline: none;
-}
-.rd__add-btn {
-  width: 34px;
-  height: 34px;
-  font-size: 1.3rem;
-  line-height: 1;
-  background: rgba(108,99,255,0.2);
-  border: 1px solid var(--border-hi);
-  border-radius: 8px;
-  color: var(--violet);
-  cursor: pointer;
-  transition: background 0.18s, box-shadow 0.18s;
-  flex-shrink: 0;
-}
-.rd__add-btn:hover {
-  background: rgba(108,99,255,0.35);
-  box-shadow: var(--glow-v);
-}
-.rd__friend-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-height: 130px;
-  overflow-y: auto;
-}
-.rd__friend-list::-webkit-scrollbar { width: 3px; }
-.rd__friend-list::-webkit-scrollbar-track { background: transparent; }
-.rd__friend-list::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
-
-.rd__friend-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 5px 8px;
-  background: var(--card);
-  border-radius: 6px;
-  border: 1px solid var(--border);
-}
-.rd__friend-name {
-  font-family: var(--font-m);
-  font-size: 0.75rem;
-  color: var(--text);
-}
-.rd__friend-tag {
-  font-family: var(--font-m);
-  font-size: 0.68rem;
-  color: var(--violet);
-}
-.rd__friend-region {
-  font-size: 0.65rem;
-  color: var(--text-3);
-  margin-left: 6px;
-}
-.rd__friend-remove {
-  width: 20px;
-  height: 20px;
-  background: transparent;
-  border: none;
-  color: var(--text-3);
-  cursor: pointer;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: color 0.15s, background 0.15s;
-  flex-shrink: 0;
-}
-.rd__friend-remove:hover { color: var(--pink); background: rgba(255,45,120,0.1); }
-
-/* Corpo do ranking */
-.rd__body {
-  max-height: 310px;
-  overflow-y: auto;
-}
-.rd__body::-webkit-scrollbar { width: 3px; }
-.rd__body::-webkit-scrollbar-track { background: transparent; }
-.rd__body::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
-
-/* Empty state */
-.rd__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 28px 20px;
-  text-align: center;
-}
-.rd__empty-icon { font-size: 2rem; opacity: 0.5; }
-.rd__empty-text { font-size: 0.78rem; color: var(--text-2); }
-
-/* Loading skeleton no ranking */
-.rd__loading {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 12px 14px;
-}
-.rd__loading-row {
-  height: 42px;
-  background: var(--card);
-  border-radius: 8px;
-  animation: rdPulse 1.4s ease-in-out infinite;
-}
-@keyframes rdPulse {
-  0%, 100% { opacity: 0.5; }
-  50%       { opacity: 1; }
-}
-.rd__loading-row:nth-child(2) { animation-delay: 0.15s; }
-.rd__loading-row:nth-child(3) { animation-delay: 0.3s; }
-
-/* Tabela de ranking */
-.rd__table {
-  width: 100%;
-  padding: 6px 0;
-}
-.rd__row {
-  display: grid;
-  grid-template-columns: 22px 1fr auto;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 14px;
-  cursor: pointer;
-  border-bottom: 1px solid rgba(108,99,255,0.07);
-  transition: background 0.15s;
-  position: relative;
-}
-.rd__row:last-child { border-bottom: none; }
-.rd__row:hover { background: rgba(108,99,255,0.08); }
-.rd__row:hover .rd__player-name { color: var(--cyan); }
-.rd__row.has-error { opacity: 0.45; cursor: default; pointer-events: none; }
-
-.rd__rank {
-  font-family: var(--font-m);
-  font-size: 0.7rem;
-  color: var(--text-3);
-  text-align: center;
-}
-.rd__rank--gold { color: var(--gold); }
-.rd__rank--silver { color: #a0aec0; }
-.rd__rank--bronze { color: #cd7f32; }
-
-.rd__player {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-.rd__player-name {
-  font-family: var(--font-d);
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: color 0.15s;
-}
-.rd__player-tag {
-  font-family: var(--font-m);
-  font-size: 0.65rem;
-  color: var(--text-3);
-}
-.rd__player-error {
-  font-size: 0.65rem;
-  color: var(--pink);
-}
-
-.rd__stats {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  flex-shrink: 0;
-}
-.rd__champs {
-  font-family: var(--font-m);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--green);
-}
-.rd__champs span {
-  font-size: 0.6rem;
-  color: var(--text-3);
-  font-weight: 400;
-}
-.rd__winrate {
-  font-family: var(--font-m);
-  font-size: 0.65rem;
-  color: var(--text-2);
-}
-.rd__winrate.wr-high { color: var(--green); }
-.rd__winrate.wr-mid  { color: var(--gold); }
-
-/* Cache info bar */
-.rd__cache-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 14px;
-  border-top: 1px solid var(--border);
-  font-size: 0.62rem;
-  color: var(--text-3);
-  font-family: var(--font-m);
-  background: rgba(0,0,0,0.15);
-}
-.rd__cache-refresh {
-  background: none;
-  border: none;
-  color: var(--violet);
-  cursor: pointer;
-  font-size: 0.62rem;
-  font-family: var(--font-m);
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: background 0.15s;
-}
-.rd__cache-refresh:hover { background: rgba(108,99,255,0.15); }
-
-/* Footer */
-.rd__footer {
-  padding: 10px 14px;
-  border-top: 1px solid var(--border);
-  background: rgba(0,0,0,0.1);
-}
-.rd__footer[hidden] { display: none; }
-.rd__search-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 9px;
-  font-family: var(--font-d);
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: #fff;
-  background: linear-gradient(135deg, var(--violet), var(--cyan));
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: opacity 0.2s, box-shadow 0.2s;
-}
-.rd__search-btn:hover { opacity: 0.9; box-shadow: var(--glow-v); }
-.rd__search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.rd__search-btn.loading { opacity: 0.7; }
-
-/* Animação de entrada das rows do ranking */
-.rd__row {
-  animation: rdRowIn 0.25s var(--spring) both;
-}
-.rd__row:nth-child(2) { animation-delay: 0.04s; }
-.rd__row:nth-child(3) { animation-delay: 0.08s; }
-.rd__row:nth-child(4) { animation-delay: 0.12s; }
-.rd__row:nth-child(5) { animation-delay: 0.16s; }
-@keyframes rdRowIn {
-  from { opacity: 0; transform: translateX(10px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-/* Responsivo — mobile */
-@media (max-width: 520px) {
-  .ranking-dropdown { width: calc(100vw - 24px); right: -8px; }
-  .nav__badge { display: none; }
-}
-
-/* Badge "padrão" nos amigos default */
-.rd__friend-item--default {
-  border-color: rgba(108,99,255,0.25);
-}
-.rd__friend-default-badge {
-  display: inline-block;
-  font-size: 0.58rem;
-  font-family: var(--font-m);
-  padding: 1px 5px;
-  border-radius: 4px;
-  background: rgba(108,99,255,0.15);
-  color: var(--violet);
-  border: 1px solid rgba(108,99,255,0.3);
-  margin-left: 5px;
-  vertical-align: middle;
-  letter-spacing: 0.5px;
-}
+// =============================================================================
+// app.js — TDAH.GG Riot Import
+// =============================================================================
+
+(function () {
+  'use strict';
+
+  // ---- Estado ----
+  let currentData      = null;
+  let sortBy           = 'games';
+  let filterText       = '';
+  let showOnlyFirst    = true;    // apenas 1º lugar (padrão ativo)
+  let showUnplayed     = false;   // campeões ainda não jogados
+  let allChampionIds   = [];      // todos os champs do DDragon
+
+  // ---- DOM ----
+  const form           = document.getElementById('search-form');
+  const inputName      = document.getElementById('input-name');
+  const inputTag       = document.getElementById('input-tag');
+  const inputRegion    = document.getElementById('input-region');
+  const inputCount     = document.getElementById('input-count');
+  const btnSearch      = document.getElementById('btn-search');
+  const heroSection    = document.getElementById('hero');
+  const resultsSection = document.getElementById('results');
+  const champGrid      = document.getElementById('champ-grid');
+  const filterInput    = document.getElementById('filter-input');
+  const sortSelect     = document.getElementById('sort-select');
+  const firstToggle    = document.getElementById('first-toggle');
+  const unplayedToggle = document.getElementById('unplayed-toggle');
+  const statGames      = document.getElementById('stat-games');
+  const statWins       = document.getElementById('stat-wins');
+  const statWinrate    = document.getElementById('stat-winrate');
+  const statChamps     = document.getElementById('stat-champs');
+  const playerBadge    = document.getElementById('player-badge');
+  const errorBox       = document.getElementById('error-box');
+  const loadingBox     = document.getElementById('loading-box');
+
+  // ---- Utilitários ----
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function debounce(fn, ms) {
+    let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+  }
+
+  function wrColor(wr) {
+    if (wr >= 60) return 'wr-high';
+    if (wr >= 50) return 'wr-mid';
+    return 'wr-low';
+  }
+
+  function placementEmoji(avg) {
+    if (!avg) return '';
+    if (avg <= 1.5) return '🥇';
+    if (avg <= 2.5) return '🥈';
+    if (avg <= 4)   return '🎖️';
+    return '💀';
+  }
+
+  function timeAgo(ts) {
+    if (!ts) return '';
+    const agora   = new Date();
+    const jogado  = new Date(ts);
+    // Zera as horas para comparar apenas o dia do calendário (ignora hora/minuto/segundo)
+    const diaAgora  = new Date(agora.getFullYear(),  agora.getMonth(),  agora.getDate());
+    const diaJogado = new Date(jogado.getFullYear(), jogado.getMonth(), jogado.getDate());
+    const d = Math.round((diaAgora - diaJogado) / 86400000);
+    if (d === 0)   return 'hoje';
+    if (d === 1)   return 'ontem';
+    if (d < 7)     return `${d}d atrás`;
+    if (d < 30)    return `${Math.floor(d / 7)}sem atrás`;
+    if (d < 365)   return `${Math.floor(d / 30)}meses atrás`;
+    return `${Math.floor(d / 365)}a atrás`;
+  }
+
+  // ---- Re-computa stats de campeão a partir de uma lista de partidas ----
+  function computeChampStats(matches) {
+    const champStats = {};
+    for (const m of matches) {
+      const { champion, win, placement, date } = m;
+      if (!champStats[champion]) {
+        champStats[champion] = { wins: 0, losses: 0, firstPlaceWins: 0, placements: [], lastPlayed: 0 };
+      }
+      if (win) champStats[champion].wins++;
+      else     champStats[champion].losses++;
+      if (placement === 1) champStats[champion].firstPlaceWins++;
+      champStats[champion].placements.push(placement);
+      if (date > champStats[champion].lastPlayed) champStats[champion].lastPlayed = date;
+    }
+    for (const stats of Object.values(champStats)) {
+      stats.avgPlacement = stats.placements.length
+        ? +(stats.placements.reduce((a, b) => a + b, 0) / stats.placements.length).toFixed(1)
+        : null;
+      stats.games   = stats.wins + stats.losses;
+      stats.winrate = stats.games > 0 ? Math.round((stats.wins / stats.games) * 100) : 0;
+    }
+    return champStats;
+  }
+
+  // ---- Filtra pelo split atual (desde o início do split) ----
+  function getActivePeriodTimestamp() {
+    return getPatchStartTimestamp();
+  }
+
+  // ---- Retorna os campeões ativos (apenas patch atual) ----
+  function getActiveChampions() {
+    if (!currentData) return {};
+    // Sempre recalcula no client para garantir firstPlaceWins disponível
+    const matches = currentData.matches.filter(m => m.date >= getActivePeriodTimestamp());
+    return computeChampStats(matches);
+  }
+
+  // ---- Atualiza a barra de stats ----
+  function updateStats() {
+    if (!currentData) return;
+    const activeChamps = getActiveChampions();
+    const champEntries = Object.entries(activeChamps);
+
+    // Partidas totais do período
+    const matches = currentData.matches.filter(m => m.date >= getActivePeriodTimestamp());
+    const totalGames = matches.length;
+
+    // Vitórias em 1º lugar
+    const totalFirst = champEntries.reduce((a, [, v]) => a + v.firstPlaceWins, 0);
+
+    // % de partidas que terminaram em 1º
+    const firstRate = totalGames > 0 ? Math.round((totalFirst / totalGames) * 100) : 0;
+
+    // Campeões com pelo menos um 1º lugar
+    const champsWithFirst = champEntries.filter(([, v]) => v.firstPlaceWins > 0).length;
+
+    animateCount(statGames,   0, totalGames);
+    animateCount(statWins,    0, totalFirst);
+    animateCount(statWinrate, 0, firstRate, '%');
+    animateCount(statChamps,  0, champsWithFirst);
+  }
+
+  // ---- Busca ----
+  // Timeout por quantidade de partidas
+  const FETCH_TIMEOUT_MS = { 20: 25000, 40: 35000, 60: 45000, 100: 55000 };
+
+  async function fetchMatches(gameName, tagLine, platform, count) {
+    // NÃO enviamos patchStart para o servidor — a Riot API ignora count quando
+    // startTime está presente e retorna apenas ~20 jogos do patch, quebrando
+    // o contador de partidas e as vitórias históricas.
+    // O filtro de patch é feito 100% no client via getActiveChampions().
+    const params = new URLSearchParams({ gameName, tagLine, platform, count });
+
+    // AbortController com timeout — evita loading infinito quando o servidor
+    // trava, Vercel retorna 504 em HTML, ou a rede some.
+    const timeoutMs = FETCH_TIMEOUT_MS[String(count)] ?? 55000;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    let res;
+    try {
+      res = await fetch(`/api/matches?${params}`, { signal: controller.signal });
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        throw new Error(
+          `A busca demorou mais de ${Math.round(timeoutMs / 1000)}s. ` +
+          `Tente reduzir a quantidade de partidas ou aguarde e tente novamente.`
+        );
+      }
+      throw new Error('Falha de rede. Verifique sua conexão e tente novamente.');
+    } finally {
+      clearTimeout(timer);
+    }
+
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      // Vercel retornou HTML de erro (timeout 504 ou crash) em vez de JSON
+      throw new Error(
+        `Erro no servidor (${res.status}). ` +
+        `Tente reduzir a quantidade de partidas ou aguarde alguns segundos.`
+      );
+    }
+
+    if (!res.ok) throw new Error(data.error || 'Erro desconhecido');
+    return data;
+  }
+
+  // ---- Submit ----
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const name     = inputName.value.trim();
+    const tag      = inputTag.value.trim().replace('#', '');
+    const platform = inputRegion.value;
+    const count    = inputCount.value;
+
+    if (!name || !tag) return shake(form);
+
+    setLoading(true);
+    hideError();
+    resultsSection.classList.add('hidden');
+
+    try {
+      const data = await fetchMatches(name, tag, platform, count);
+      currentData = data;
+      await renderResults(data);
+      resultsSection.classList.remove('hidden');
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) {
+      showError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  // ---- Render Results ----
+  async function renderResults(data) {
+    // Player badge
+    playerBadge.innerHTML = `
+      <span class="badge-name">${esc(data.gameName)}</span>
+      <span class="badge-tag">#${esc(data.tagLine)}</span>
+      <span class="badge-region">${esc(data.platform?.toUpperCase() || 'BR1')}</span>
+    `;
+
+    // Carrega lista de campeões para o filtro de não-jogados (em paralelo)
+    if (allChampionIds.length === 0) {
+      getAllChampionIds().then(ids => { allChampionIds = ids; });
+    }
+
+    updateStats();
+    renderGrid();
+  }
+
+  // ---- Render Grid ----
+  function renderGrid() {
+    if (!currentData) return;
+
+    // ── Modo: campeões NÃO jogados ──
+    if (showUnplayed) {
+      renderUnplayedGrid();
+      return;
+    }
+
+    // ── Modo normal ──
+    const activeChamps = getActiveChampions();
+    let filtered = Object.entries(activeChamps);
+
+    if (filterText) {
+      const q = filterText.toLowerCase();
+      filtered = filtered.filter(([id]) => id.toLowerCase().includes(q));
+    }
+    if (showOnlyFirst) {
+      filtered = filtered.filter(([, v]) => v.firstPlaceWins > 0);
+    }
+
+    // Sort
+    if (sortBy === 'games')     filtered.sort((a, b) => b[1].games - a[1].games);
+    if (sortBy === 'wins')      filtered.sort((a, b) => b[1].wins - a[1].wins);
+    if (sortBy === 'winrate')   filtered.sort((a, b) => b[1].winrate - a[1].winrate);
+    if (sortBy === 'placement') filtered.sort((a, b) => (a[1].avgPlacement || 9) - (b[1].avgPlacement || 9));
+    if (sortBy === 'recent')    filtered.sort((a, b) => b[1].lastPlayed - a[1].lastPlayed);
+    if (sortBy === 'name')      filtered.sort((a, b) => a[0].localeCompare(b[0]));
+
+    if (filtered.length === 0) {
+      const msg = showOnlyFirst
+        ? 'Nenhum 1º lugar encontrado no split atual.'
+        : 'Nenhuma partida encontrada no split atual.';
+      champGrid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <div class="empty-text">${msg}</div>
+        </div>`;
+      return;
+    }
+
+    champGrid.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    filtered.forEach(([id, stats], idx) => frag.appendChild(createCard(id, stats, idx)));
+    champGrid.appendChild(frag);
+  }
+
+  // ── Grid de campeões não jogados ──
+  function renderUnplayedGrid() {
+    const activeChamps = getActiveChampions();
+    const playedIds    = new Set(Object.keys(activeChamps));
+
+    if (allChampionIds.length === 0) {
+      champGrid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">⏳</div>
+          <div class="empty-text">Carregando lista de campeões…</div>
+        </div>`;
+      // Tenta de novo em 500ms (aguarda a API do DDragon)
+      setTimeout(() => { if (showUnplayed) renderUnplayedGrid(); }, 500);
+      return;
+    }
+
+    let unplayed = allChampionIds.filter(id => !playedIds.has(id));
+
+    if (filterText) {
+      const q = filterText.toLowerCase();
+      unplayed = unplayed.filter(id => id.toLowerCase().includes(q));
+    }
+
+    // Ordenação: apenas por nome faz sentido para não-jogados
+    // mas respeitamos o sort-select para "A→Z" e mantemos alfa para o resto
+    unplayed.sort((a, b) => a.localeCompare(b));
+
+    if (unplayed.length === 0) {
+      const msg = '🎉 Você jogou com todos os campeões no split atual!';
+      champGrid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🏆</div>
+          <div class="empty-text">${msg}</div>
+        </div>`;
+      return;
+    }
+
+    champGrid.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    unplayed.forEach((id, idx) => frag.appendChild(createUnplayedCard(id, idx)));
+    champGrid.appendChild(frag);
+  }
+
+  // ---- Card: campeão jogado ----
+  function createCard(champId, stats, idx) {
+    const article = document.createElement('article');
+    article.className = 'champ-card';
+    article.style.animationDelay = `${Math.min(idx * 30, 600)}ms`;
+    if (stats.wins > 0) article.classList.add('has-wins');
+
+    const wr   = stats.winrate;
+    const avg  = stats.avgPlacement;
+    const last = timeAgo(stats.lastPlayed);
+    const imgSrc = DD_IMG(champId);
+
+    article.innerHTML = `
+      <div class="champ-card__glow"></div>
+      <div class="champ-card__img-wrap">
+        <img class="champ-card__img" src="${imgSrc}" alt="${esc(champId)}"
+             loading="${idx < 8 ? 'eager' : 'lazy'}"
+             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22><rect width=%22120%22 height=%22120%22 fill=%22%230a0a1a%22/><text x=%2250%25%22 y=%2255%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2236%22 fill=%22%23333%22>?</text></svg>'">
+        <div class="champ-card__img-overlay"></div>
+        <div class="champ-card__games-badge">${stats.games}x</div>
+        ${stats.wins > 0 ? `<div class="champ-card__win-crown">👑</div>` : ''}
+      </div>
+      <div class="champ-card__body">
+        <div class="champ-card__name">${esc(champId)}</div>
+        <div class="champ-card__record">
+          <span class="rec-w">${stats.wins}V</span>
+          <span class="rec-sep">/</span>
+          <span class="rec-l">${stats.losses}D</span>
+          <span class="rec-wr ${wrColor(wr)}">${wr}%</span>
+        </div>
+        <div class="champ-card__bar-wrap">
+          <div class="champ-card__bar" style="width:${wr}%" data-wr="${wr}"></div>
+        </div>
+        <div class="champ-card__meta">
+          ${avg !== null ? `<span class="meta-placement">${placementEmoji(avg)} #${avg}</span>` : ''}
+          <span class="meta-last">${last}</span>
+        </div>
+      </div>
+    `;
+
+    return article;
+  }
+
+  // ---- Card: campeão não jogado ----
+  function createUnplayedCard(champId, idx) {
+    const article = document.createElement('article');
+    article.className = 'champ-card champ-card--unplayed';
+    article.style.animationDelay = `${Math.min(idx * 20, 600)}ms`;
+
+    const imgSrc = DD_IMG(champId);
+
+    article.innerHTML = `
+      <div class="champ-card__img-wrap">
+        <img class="champ-card__img" src="${imgSrc}" alt="${esc(champId)}"
+             loading="${idx < 8 ? 'eager' : 'lazy'}"
+             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22><rect width=%22120%22 height=%22120%22 fill=%22%230a0a1a%22/><text x=%2250%25%22 y=%2255%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2236%22 fill=%22%23333%22>?</text></svg>'">
+        <div class="champ-card__img-overlay"></div>
+        <div class="champ-card__games-badge">0x</div>
+        <div class="champ-card__unplayed-badge">❌</div>
+      </div>
+      <div class="champ-card__body">
+        <div class="champ-card__name">${esc(champId)}</div>
+        <div class="champ-card__record">
+          <span class="rec-sep rec-unplayed">Não jogado</span>
+        </div>
+        <div class="champ-card__bar-wrap">
+          <div class="champ-card__bar" style="width:0%" data-wr="0"></div>
+        </div>
+        <div class="champ-card__meta">
+          <span class="meta-last">—</span>
+        </div>
+      </div>
+    `;
+
+    return article;
+  }
+
+  // ---- Controles de filtro/sort ----
+  filterInput?.addEventListener('input', debounce(e => {
+    filterText = e.target.value;
+    renderGrid();
+  }, 150));
+
+  sortSelect?.addEventListener('change', e => {
+    sortBy = e.target.value;
+    renderGrid();
+  });
+
+  firstToggle?.addEventListener('click', () => {
+    showOnlyFirst = !showOnlyFirst;
+    firstToggle.classList.toggle('active', showOnlyFirst);
+    firstToggle.setAttribute('aria-pressed', showOnlyFirst.toString());
+    // Desativa "não jogados" ao ativar 1º lugar
+    if (showOnlyFirst) {
+      showUnplayed = false;
+      unplayedToggle?.classList.remove('active', 'active-unplayed');
+      unplayedToggle?.setAttribute('aria-pressed', 'false');
+    }
+    renderGrid();
+  });
+
+  unplayedToggle?.addEventListener('click', () => {
+    showUnplayed = !showUnplayed;
+    unplayedToggle.classList.toggle('active-unplayed', showUnplayed);
+    unplayedToggle.setAttribute('aria-pressed', showUnplayed.toString());
+    // Desativa "1º lugar" ao ativar "não jogados"
+    if (showUnplayed) {
+      showOnlyFirst = false;
+      firstToggle?.classList.remove('active');
+      firstToggle?.setAttribute('aria-pressed', 'false');
+    }
+    renderGrid();
+  });
+
+  // ---- Helpers visuais ----
+  function setLoading(on) {
+    btnSearch.disabled = on;
+    btnSearch.textContent = on ? 'Buscando…' : 'Buscar Partidas';
+    btnSearch.classList.toggle('loading', on);
+    loadingBox?.classList.toggle('hidden', !on);
+  }
+
+  function showError(msg) {
+    if (!errorBox) return;
+    errorBox.textContent = msg;
+    errorBox.classList.remove('hidden');
+    errorBox.classList.add('shake');
+    setTimeout(() => errorBox.classList.remove('shake'), 500);
+  }
+
+  function hideError() {
+    errorBox?.classList.add('hidden');
+  }
+
+  function shake(el) {
+    el.classList.add('shake');
+    setTimeout(() => el.classList.remove('shake'), 500);
+  }
+
+  function animateCount(el, from, to, suffix = '') {
+    if (!el) return;
+    const dur   = 800;
+    const start = performance.now();
+    function tick(now) {
+      const t   = Math.min((now - start) / dur, 1);
+      const val = Math.round(from + (to - from) * easeOut(t));
+      el.textContent = val + suffix;
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+  // ---- Init ----
+  // Inicializa DDragon
+  initDDragon().catch(() => {});
+
+  // Anima o placeholder do input
+  const placeholders = ['Thigas, O Grande', 'Qwsae, O Baixo', 'Naty, Teacher of English', 'Xin, A Casada', 'Max, O Mamador', 'Yago, Goza e Some'];
+  let phIdx = 0;
+  setInterval(() => {
+    phIdx = (phIdx + 1) % placeholders.length;
+    inputName.placeholder = placeholders[phIdx];
+  }, 2000);
+
+  // ==========================================================================
+  // RANKING DE AMIGOS
+  // ==========================================================================
+
+  const RANKING_LS_FRIENDS = 'tdah_ranking_friends';
+  const RANKING_LS_CACHE   = 'tdah_ranking_cache';
+  const RANKING_CACHE_TTL  = 10 * 60 * 1000; // 10 minutos em ms
+
+  // ---- Elementos do ranking ----
+  const rankingBtn    = document.getElementById('ranking-btn');
+  const rankingDropdown = document.getElementById('ranking-dropdown');
+  const rdGearBtn     = document.getElementById('rd-gear-btn');
+  const rdManage      = document.getElementById('rd-manage');
+  const rdAddInput    = document.getElementById('rd-add-input');
+  const rdAddRegion   = document.getElementById('rd-add-region');
+  const rdAddBtn      = document.getElementById('rd-add-btn');
+  const rdFriendList  = document.getElementById('rd-friend-list');
+  const rdBody        = document.getElementById('rd-body');
+  const rdFooter      = document.getElementById('rd-footer');
+  const rdSearchBtn   = document.getElementById('rd-search-btn');
+
+  // ---- Estado do ranking ----
+  let rankingOpen     = false;
+  let manageOpen      = false;
+  let rankingFetching = false;
+
+  // ---- Amigos padrão (aparecem pra todo mundo na primeira visita) ----
+  const DEFAULT_FRIENDS = [
+    { gameName: 'TDAH Thigas シ', tagLine: 'lulu',  platform: 'br1', isDefault: true },
+    { gameName: 'Nuke De Kat',       tagLine: 'NDK',   platform: 'br1', isDefault: true },
+    { gameName: 'TDAH QwSaE',        tagLine: 'AGUA',  platform: 'br1', isDefault: true },
+    { gameName: 'TDAH OnlyEmotes',   tagLine: 'TDHA',  platform: 'br1', isDefault: true },
+  ];
+
+  // ---- Persistência de amigos ----
+  function loadFriends() {
+    try {
+      const raw = localStorage.getItem(RANKING_LS_FRIENDS);
+      // Primeira visita: injeta os defaults e salva
+      if (raw === null) {
+        saveFriends(DEFAULT_FRIENDS);
+        return DEFAULT_FRIENDS;
+      }
+      return JSON.parse(raw);
+    } catch { return DEFAULT_FRIENDS; }
+  }
+  function saveFriends(list) {
+    localStorage.setItem(RANKING_LS_FRIENDS, JSON.stringify(list));
+  }
+
+  // ---- Cache de ranking ----
+  function loadRankingCache() {
+    try {
+      const raw = localStorage.getItem(RANKING_LS_CACHE);
+      if (!raw) return null;
+      const obj = JSON.parse(raw);
+      if (!obj || Date.now() - obj.fetchedAt > RANKING_CACHE_TTL) return null;
+      return obj;
+    } catch { return null; }
+  }
+  function saveRankingCache(data) {
+    localStorage.setItem(RANKING_LS_CACHE, JSON.stringify(data));
+  }
+  function clearRankingCache() {
+    localStorage.removeItem(RANKING_LS_CACHE);
+  }
+
+  // ---- Toggle dropdown ----
+  rankingBtn?.addEventListener('click', e => {
+    e.stopPropagation();
+    rankingOpen = !rankingOpen;
+    rankingBtn.setAttribute('aria-expanded', rankingOpen.toString());
+    rankingBtn.classList.toggle('is-open', rankingOpen);
+    rankingDropdown.hidden = !rankingOpen;
+    if (rankingOpen) {
+      renderFriendFooter();
+      renderRankingBody();
+    }
+  });
+
+  // Fechar ao clicar fora
+  document.addEventListener('click', e => {
+    if (rankingOpen && !rankingDropdown.contains(e.target) && e.target !== rankingBtn) {
+      closeRankingDropdown();
+    }
+  });
+
+  // Fechar com ESC
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && rankingOpen) closeRankingDropdown();
+  });
+
+  function closeRankingDropdown() {
+    rankingOpen = false;
+    rankingBtn?.setAttribute('aria-expanded', 'false');
+    rankingBtn?.classList.remove('is-open');
+    if (rankingDropdown) rankingDropdown.hidden = true;
+  }
+
+  // ---- Toggle painel de gerenciar amigos ----
+  rdGearBtn?.addEventListener('click', e => {
+    e.stopPropagation();
+    manageOpen = !manageOpen;
+    rdGearBtn.classList.toggle('is-active', manageOpen);
+    if (rdManage) rdManage.hidden = !manageOpen;
+    if (manageOpen) {
+      renderFriendListUI();
+      rdAddInput?.focus();
+    }
+  });
+
+  // ---- Adicionar amigo ----
+  function addFriendFromInput() {
+    const raw = rdAddInput?.value.trim();
+    if (!raw) { shake(rdAddInput); return; }
+    const region = rdAddRegion?.value || 'br1';
+
+    // Aceita "Nome#TAG" ou "Nome TAG" ou só "Nome" (sem tag)
+    let gameName, tagLine;
+    if (raw.includes('#')) {
+      [gameName, tagLine] = raw.split('#').map(s => s.trim());
+    } else {
+      gameName = raw;
+      tagLine = '';
+    }
+    if (!gameName) return shake(rdAddInput);
+
+    const friends = loadFriends();
+    const alreadyExists = friends.some(f =>
+      f.gameName.toLowerCase() === gameName.toLowerCase() &&
+      f.tagLine.toLowerCase() === (tagLine || '').toLowerCase() &&
+      f.platform === region
+    );
+    if (alreadyExists) {
+      rdAddInput.classList.add('shake');
+      setTimeout(() => rdAddInput.classList.remove('shake'), 400);
+      return;
+    }
+
+    friends.push({ gameName, tagLine: tagLine || '', platform: region });
+    saveFriends(friends);
+    rdAddInput.value = '';
+    renderFriendListUI();
+    renderFriendFooter();
+    clearRankingCache();
+    renderRankingBody(); // volta ao estado idle para mostrar "busque ranking"
+  }
+
+  rdAddBtn?.addEventListener('click', e => { e.stopPropagation(); addFriendFromInput(); });
+  rdAddInput?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addFriendFromInput(); } });
+
+  // ---- Renderiza lista de amigos no painel de gerenciar ----
+  function renderFriendListUI() {
+    if (!rdFriendList) return;
+    const friends = loadFriends();
+    if (friends.length === 0) {
+      rdFriendList.innerHTML = '';
+      return;
+    }
+    rdFriendList.innerHTML = friends.map((f, i) => `
+      <li class="rd__friend-item${f.isDefault ? ' rd__friend-item--default' : ''}" data-idx="${i}">
+        <span>
+          <span class="rd__friend-name">${esc(f.gameName)}</span>
+          <span class="rd__friend-tag">${f.tagLine ? '#' + esc(f.tagLine) : ''}</span>
+          <span class="rd__friend-region">${esc(f.platform.toUpperCase())}</span>
+          ${f.isDefault ? '<span class="rd__friend-default-badge">padrão</span>' : ''}
+        </span>
+        <button class="rd__friend-remove" data-idx="${i}" aria-label="Remover ${esc(f.gameName)}">×</button>
+      </li>
+    `).join('');
+
+    rdFriendList.querySelectorAll('.rd__friend-remove').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.idx, 10);
+        const friends2 = loadFriends();
+        friends2.splice(idx, 1);
+        saveFriends(friends2);
+        clearRankingCache();
+        renderFriendListUI();
+        renderFriendFooter();
+        renderRankingBody();
+      });
+    });
+  }
+
+  // ---- Mostra/esconde footer (botão buscar) ----
+  function renderFriendFooter() {
+    if (!rdFooter) return;
+    const friends = loadFriends();
+    rdFooter.hidden = friends.length === 0;
+  }
+
+  // ---- Renderiza o corpo do dropdown (ranking ou idle) ----
+  function renderRankingBody() {
+    if (!rdBody) return;
+    const friends = loadFriends();
+
+    if (friends.length === 0) {
+      rdBody.innerHTML = `
+        <div class="rd__empty">
+          <div class="rd__empty-icon">👥</div>
+          <div class="rd__empty-text">Adicione amigos clicando na ⚙️</div>
+        </div>`;
+      return;
+    }
+
+    // Tenta carregar do cache
+    const cached = loadRankingCache();
+    if (cached) {
+      renderLeaderboardRows(cached.leaderboard, cached.fetchedAt);
+      return;
+    }
+
+    // Nenhum cache — mostra prompt para buscar
+    rdBody.innerHTML = `
+      <div class="rd__empty">
+        <div class="rd__empty-icon">🏆</div>
+        <div class="rd__empty-text">${friends.length} amigo${friends.length > 1 ? 's' : ''} na lista.<br>Clique em <strong>Buscar ranking</strong>!</div>
+      </div>`;
+  }
+
+  // ---- Renderiza as linhas do leaderboard ----
+  function renderLeaderboardRows(leaderboard, fetchedAt) {
+    if (!rdBody) return;
+
+    const rankClass = ['rd__rank--gold', 'rd__rank--silver', 'rd__rank--bronze'];
+    const rankEmoji = ['🥇', '🥈', '🥉'];
+
+    const rowsHtml = leaderboard.map((player, idx) => {
+      if (player.error) {
+        return `
+          <div class="rd__row has-error" aria-disabled="true">
+            <div class="rd__rank">${idx + 1}</div>
+            <div class="rd__player">
+              <div class="rd__player-name">${esc(player.gameName)}</div>
+              <div class="rd__player-error">${esc(player.error)}</div>
+            </div>
+            <div class="rd__stats">
+              <div class="rd__champs">—</div>
+            </div>
+          </div>`;
+      }
+
+      const wrClass = player.winrate >= 60 ? 'wr-high' : player.winrate >= 50 ? 'wr-mid' : '';
+      const rankLabel = idx < 3 ? rankEmoji[idx] : String(idx + 1);
+      const rankCls   = idx < 3 ? rankClass[idx] : '';
+      const tagDisplay = player.tagLine ? `#${esc(player.tagLine)}` : '';
+
+      return `
+        <div class="rd__row" role="button" tabindex="0"
+             data-name="${esc(player.gameName)}"
+             data-tag="${esc(player.tagLine)}"
+             data-platform="${esc(player.platform)}"
+             aria-label="Ver detalhes de ${esc(player.gameName)}">
+          <div class="rd__rank ${rankCls}">${rankLabel}</div>
+          <div class="rd__player">
+            <div class="rd__player-name">${esc(player.gameName)}</div>
+            <div class="rd__player-tag">${tagDisplay} · ${esc(player.platform.toUpperCase().replace(/\d+$/, ''))}</div>
+          </div>
+          <div class="rd__stats">
+            <div class="rd__champs">${player.uniqueChampionsWon} <span>únicos</span></div>
+            <div class="rd__winrate ${wrClass}">${player.totalMatches}p · ${player.winrate}%</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Calcula tempo restante no cache
+    const msLeft = RANKING_CACHE_TTL - (Date.now() - fetchedAt);
+    const minLeft = Math.max(0, Math.ceil(msLeft / 60000));
+    const cacheText = minLeft > 0
+      ? `Cache: ${minLeft}min restante${minLeft > 1 ? 's' : ''}`
+      : 'Cache expirado';
+
+    rdBody.innerHTML = `
+      <div class="rd__table">${rowsHtml}</div>
+      <div class="rd__cache-bar">
+        <span>${cacheText}</span>
+        <button class="rd__cache-refresh" id="rd-cache-refresh">↺ Atualizar</button>
+      </div>`;
+
+    // Evento de refresh de cache
+    rdBody.querySelector('#rd-cache-refresh')?.addEventListener('click', e => {
+      e.stopPropagation();
+      clearRankingCache();
+      fetchRanking();
+    });
+
+    // Clique nas linhas → preenche formulário e busca
+    rdBody.querySelectorAll('.rd__row[data-name]').forEach(row => {
+      const handleSelect = () => {
+        const name     = row.dataset.name;
+        const tag      = row.dataset.tag;
+        const platform = row.dataset.platform;
+
+        // Preenche o formulário principal
+        if (inputName) inputName.value = name;
+        if (inputTag)  inputTag.value  = tag;
+        // Garante que a opção existe no select antes de setar;
+        // se não existir (ex: região não-BR num select de região única), cria dinamicamente
+        if (inputRegion) {
+          let opt = inputRegion.querySelector(`option[value="${platform}"]`);
+          if (!opt) {
+            opt = document.createElement('option');
+            opt.value = platform;
+            opt.textContent = platform.toUpperCase().replace(/\d+$/, '');
+            inputRegion.appendChild(opt);
+          }
+          inputRegion.value = platform;
+        }
+
+        // Fecha dropdown
+        closeRankingDropdown();
+
+        // Rola suavemente até o hero e dispara a busca
+        heroSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => form?.requestSubmit(), 350);
+      };
+
+      row.addEventListener('click', handleSelect);
+      row.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelect(); }
+      });
+    });
+  }
+
+  // ---- Buscar ranking via API ----
+  async function fetchRanking() {
+    if (rankingFetching) return;
+    const friends = loadFriends();
+    if (friends.length === 0) return;
+
+    rankingFetching = true;
+    rdSearchBtn.disabled = true;
+    rdSearchBtn.classList.add('loading');
+    rdSearchBtn.textContent = 'Buscando…';
+
+    // Mostra loading skeleton
+    rdBody.innerHTML = `
+      <div class="rd__loading">
+        ${friends.map(() => '<div class="rd__loading-row"></div>').join('')}
+      </div>`;
+
+    try {
+      const res = await fetch('/api/leaderboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ players: friends }),
+      });
+
+      let data;
+      try { data = await res.json(); }
+      catch { throw new Error('Resposta inválida do servidor.'); }
+
+      if (!res.ok) throw new Error(data.error || `Erro ${res.status}`);
+
+      saveRankingCache(data);
+      renderLeaderboardRows(data.leaderboard, data.fetchedAt);
+
+    } catch (err) {
+      rdBody.innerHTML = `
+        <div class="rd__empty">
+          <div class="rd__empty-icon">⚠️</div>
+          <div class="rd__empty-text">${esc(err.message)}</div>
+        </div>`;
+    } finally {
+      rankingFetching = false;
+      if (rdSearchBtn) {
+        rdSearchBtn.disabled = false;
+        rdSearchBtn.classList.remove('loading');
+        rdSearchBtn.innerHTML = `
+          <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+          </svg>
+          Buscar ranking`;
+      }
+    }
+  }
+
+  rdSearchBtn?.addEventListener('click', e => { e.stopPropagation(); fetchRanking(); });
+
+})();
+
