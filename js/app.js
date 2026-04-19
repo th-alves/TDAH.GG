@@ -100,9 +100,9 @@
     return champStats;
   }
 
-  // ---- Filtra pelo patch atual (últimas 2 semanas) ----
+  // ---- Filtra pelo split atual (desde o início do split) ----
   function getActivePeriodTimestamp() {
-    return getCurrentPatchTimestamp();
+    return getPatchStartTimestamp();
   }
 
   // ---- Retorna os campeões ativos (apenas patch atual) ----
